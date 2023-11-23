@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ece428_mp4/pkg"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -62,7 +63,7 @@ func juice(key, intermediatePrefix, outputFilename string) error {
 	defer fileLock.Unlock()
 
 	// Now you can safely append to the CSV file
-	err = appendToCSV(outputFilename, lines)
+	err = pkg.AppendToCSV(outputFilename, lines)
 	if err != nil {
 		return fmt.Errorf("error appending to CSV: %v", err)
 	}
@@ -70,31 +71,30 @@ func juice(key, intermediatePrefix, outputFilename string) error {
 	return nil
 }
 
-// Append lines to a CSV file
-func appendToCSV(filename string, lines []string) error {
-	outFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("error opening output file: %v", err)
-	}
-	defer outFile.Close()
+// // Append lines to a CSV file
+// func appendToCSV(filename string, lines []string) error {
+// 	outFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// 	if err != nil {
+// 		return fmt.Errorf("error opening output file: %v", err)
+// 	}
+// 	defer outFile.Close()
 
-	writer := csv.NewWriter(outFile)
+// 	writer := csv.NewWriter(outFile)
 
-	for _, line := range lines {
-		fmt.Println("Writing line to CSV:", line)
-		if err := writer.Write([]string{line}); err != nil {
-			return fmt.Errorf("error writing to file: %v", err)
-		}
-	}
+// 	for _, line := range lines {
+// 		fmt.Println("Writing line to CSV:", line)
+// 		if err := writer.Write([]string{line}); err != nil {
+// 			return fmt.Errorf("error writing to file: %v", err)
+// 		}
+// 	}
 
-	writer.Flush()
+// 	writer.Flush()
 
-	if err := writer.Error(); err != nil {
-		return fmt.Errorf("error flushing writer: %v", err)
-	}
-
-	return nil
-}
+// 	if err := writer.Error(); err != nil {
+// 		return fmt.Errorf("error flushing writer: %v", err)
+// 	}
+// 	return nil
+// }
 
 // Function to write lines to a CSV file
 func writeCSV(filename string, lines []string) error {

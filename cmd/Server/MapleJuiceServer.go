@@ -17,7 +17,7 @@ type server struct {
 }
 
 func (s *server) ExecuteMaple(ctx context.Context, req *idl.MapleRequest) (*idl.MapleResponse, error) {
-	output, err := runCommand(req.Exe, "-input", req.SrcDir, "-prefix", req.Prefix, "-regex", "Anthony")
+	output, err := runCommand(req.Exe, "-input", req.SrcDir, "-prefix", req.Prefix, "-regex", "Rd")
 	if err != nil {
 		return nil, err
 	}
