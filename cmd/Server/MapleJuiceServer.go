@@ -26,7 +26,7 @@ func (s *server) ExecuteMaple(ctx context.Context, req *idl.MapleRequest) (*idl.
 
 func (s *server) ExecuteJuice(ctx context.Context, req *idl.JuiceRequest) (*idl.JuiceResponse, error) {
 	fmt.Printf("Received Juice request: %+v\n", req)
-	output, err := runCommand(req.Exe, "-key", req.Key, "-prefix", req.Prefix, "-output", req.OutDir)
+	output, err := runCommand(req.Exe, "-key", req.Key, "-prefix", req.Prefix, "-output", req.OutDir, "-delete", req.DeleteInput)
 	if err != nil {
 		return nil, err
 	}

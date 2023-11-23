@@ -135,6 +135,7 @@ func main() {
 	key := flag.String("key", "", "Keys to process")
 	intermediatePrefix := flag.String("prefix", "", "Prefix for the intermediate CSV files")
 	outputFilename := flag.String("output", "", "Filename for the output CSV file")
+	deleteIntermediate := flag.String("delete", "0", "Delete intermediate files after processing")
 
 	// Parse the command line flags
 	flag.Parse()
@@ -150,5 +151,13 @@ func main() {
 		fmt.Println("Error executing juice function:", err)
 	} else {
 		fmt.Println("Juice function executed successfully.")
+	}
+	if *deleteIntermediate == "1" {
+		fmt.Println("Deleting intermediate files")
+		filename := fmt.Sprintf("%s_%s", *intermediatePrefix, *key)
+		err := os.Remove(filename)
+		if err != nil {
+			fmt.Println("Error deleting file:", err)
+		}
 	}
 }

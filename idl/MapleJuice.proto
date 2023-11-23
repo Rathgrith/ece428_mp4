@@ -24,6 +24,7 @@ message JuiceRequest {
     string key = 2;
     string prefix = 3;
     string outDir = 4;
+    string deleteInput = 5;
 }
 
 message JuiceResponse {

@@ -26,6 +26,7 @@ func main() {
 	numJuice := juiceCmd.Int("num", 1, "Number of juice")
 	sdfsPrefix := juiceCmd.String("prefix", "", "SDFS intermediate filename prefix")
 	sdfsOutput := juiceCmd.String("output", "", "SDFS source directory")
+	deleteIntermediate := juiceCmd.String("delete", "0", "Delete intermediate files after juice")
 	// Juice command arguments
 
 	if len(os.Args) < 2 {
@@ -39,7 +40,7 @@ func main() {
 		handleMaple(*mapleExe, *numMaples, *sdfsIntermediatePrefix, *sdfsSrcDir)
 	case "juice":
 		juiceCmd.Parse(os.Args[2:])
-		handleJuice(*juiceExe, *numJuice, *sdfsPrefix, *sdfsOutput)
+		handleJuice(*juiceExe, *numJuice, *sdfsPrefix, *sdfsOutput, *deleteIntermediate)
 	default:
 		fmt.Println("Unknown command")
 		os.Exit(1)
@@ -79,7 +80,7 @@ func handleMaple(exe string, numMaples int, prefix string, srcDir string) {
 	fmt.Printf("Maple Response: %s\n", resp.GetOutput())
 }
 
-func handleJuice(exe string, numJuices int, prefix string, output string) {
+func handleJuice(exe string, numJuices int, prefix string, output string, deleteIntermediate string) {
 	client, err := createMapleJuiceClient("localhost:50051") // Adjust the address as needed
 	if err != nil {
 		fmt.Printf("Failed to create client: %v\n", err)
@@ -117,10 +118,11 @@ func handleJuice(exe string, numJuices int, prefix string, output string) {
 
 	// Prepare request for RPC
 	req := &idl.JuiceRequest{
-		Exe:    exe,
-		Key:    key,
-		Prefix: prefix,
-		OutDir: output,
+		Exe:         exe,
+		Key:         key,
+		Prefix:      prefix,
+		OutDir:      output,
+		DeleteInput: deleteIntermediate,
 	}
 
 	// Make RPC call
