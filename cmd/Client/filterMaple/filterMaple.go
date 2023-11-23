@@ -15,6 +15,7 @@ func generateFilename(prefix, key string) string {
 	// Sanitize key to remove special characters or spaces
 	sanitizedKey := strings.ReplaceAll(key, " ", "_")
 	sanitizedKey = strings.ReplaceAll(sanitizedKey, ",", "_")
+	sanitizedKey = strings.ReplaceAll(sanitizedKey, "/", "_")
 	// Add other sanitizations as needed
 
 	return fmt.Sprintf("%s_%s.csv", prefix, sanitizedKey)
