@@ -132,45 +132,20 @@ func main() {
 	// TODO: Read the intermediate files from SDFS to local
 
 	// Define command line flags
+	key := flag.String("key", "", "Keys to process")
 	intermediatePrefix := flag.String("prefix", "", "Prefix for the intermediate CSV files")
 	outputFilename := flag.String("output", "", "Filename for the output CSV file")
 
 	// Parse the command line flags
 	flag.Parse()
 	// Find files with the given prefix locally
-	files, err := os.ReadDir(".")
-	if err != nil {
-		fmt.Println("Error reading directory:", err)
-		return
-	}
-	var keys []string
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		// avoid slice bounds out of range
-		if len(file.Name()) > len(*intermediatePrefix)+1 {
-			if file.Name()[:len(*intermediatePrefix)] == *intermediatePrefix {
-				keys = append(keys, file.Name()[len(*intermediatePrefix)+1:])
-			}
-		}
-	}
-	fmt.Println("pending keys:")
-	for _, key := range keys {
-		fmt.Println("key:", key)
-	}
-
-	// Validate input
-
-	if len(keys) == 0 || *intermediatePrefix == "" || *outputFilename == "" {
+	if *key == "" || *intermediatePrefix == "" || *outputFilename == "" {
 		fmt.Println("All flags (key, prefix, output) are required")
 		flag.Usage()
 		return
 	}
-	key := keys[0]
-	fmt.Println("processing key:", key)
 	// Execute the juice function
-	err = juice(key, *intermediatePrefix, *outputFilename)
+	err := juice(*key, *intermediatePrefix, *outputFilename)
 	if err != nil {
 		fmt.Println("Error executing juice function:", err)
 	} else {

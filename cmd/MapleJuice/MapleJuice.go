@@ -63,8 +63,37 @@ func handleJuice(exe string, numMaples int, prefix string, outDir string) {
 	// Implement Juice phase logic here
 	// TODO: list all the files in SDFS with the given prefix
 	// TODO: schedule the juice executable to run on the files (once a file for each machine)
+	files, err := os.ReadDir(".")
+	if err != nil {
+		fmt.Println("Error reading directory:", err)
+		return
+	}
+	var keys []string
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		// avoid slice bounds out of range
+		if len(file.Name()) > len(prefix)+1 {
+			if file.Name()[:len(prefix)] == prefix {
+				keys = append(keys, file.Name()[len(prefix)+1:])
+			}
+		}
+	}
+	// currently local, should be sdfs
+	fmt.Println("pending keys:")
+	for _, key := range keys {
+		fmt.Println("key:", key)
+	}
+	// Validate input
+	if len(keys) == 0 {
+		fmt.Println("No files found with the given prefix")
+		return
+	}
+	key := keys[0]
+	fmt.Println("processing key:", key)
 	fmt.Printf("Running Juice with exe: %s, num: %d, prefix: %s, output: %s\n", exe, numMaples, prefix, outDir)
-	cmd := exec.Command(exe, "-prefix", prefix, "-output", outDir)
+	cmd := exec.Command(exe, "-key", key, "-prefix", prefix, "-output", outDir)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Failed to execute command: %s\n", err)
@@ -73,5 +102,3 @@ func handleJuice(exe string, numMaples int, prefix string, outDir string) {
 	fmt.Printf("Juice executable output:\n%s\n", string(output))
 	// TODO: put the file into sdfs
 }
-
-// Implement other functions like handleJuice, partitioning, etc.
