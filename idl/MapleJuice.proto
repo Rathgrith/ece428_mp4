@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package maplejuice;
+option go_package = "./idl";
+
+service MapleJuiceService {
+    rpc ExecuteMaple (MapleRequest) returns (MapleResponse);
+    rpc ExecuteJuice (JuiceRequest) returns (JuiceResponse);
+}
+
+message MapleRequest {
+    string exe = 1;
+    int32 numMaples = 2;
+    string prefix = 3;
+    string srcDir = 4;
+}
+
+message MapleResponse {
+    string output = 1;
+}
+
+message JuiceRequest {
+    string exe = 1;
+    string key = 2;
+    string prefix = 3;
+    string outDir = 4;
+}
+
+message JuiceResponse {
+    string output = 1;
+}
