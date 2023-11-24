@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ece428_mp4/pkg"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -62,70 +63,13 @@ func juice(key, intermediatePrefix, outputFilename string) error {
 	defer fileLock.Unlock()
 
 	// Now you can safely append to the CSV file
-	err = appendToCSV(outputFilename, lines)
+	err = pkg.AppendToCSV(outputFilename, lines)
 	if err != nil {
 		return fmt.Errorf("error appending to CSV: %v", err)
 	}
 
 	return nil
 }
-
-// // Append lines to a CSV file
-func appendToCSV(filename string, lines []string) error {
-	outFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("error opening output file: %v", err)
-	}
-	defer outFile.Close()
-
-	writer := csv.NewWriter(outFile)
-
-	for _, line := range lines {
-		fmt.Println("Writing line to CSV:", line)
-		if err := writer.Write([]string{line}); err != nil {
-			return fmt.Errorf("error writing to file: %v", err)
-		}
-	}
-
-	writer.Flush()
-
-	if err := writer.Error(); err != nil {
-		return fmt.Errorf("error flushing writer: %v", err)
-	}
-	return nil
-}
-
-// Function to write lines to a CSV file
-func writeCSV(filename string, lines []string) error {
-	file, err := os.Create(filename)
-	if err != nil {
-		return fmt.Errorf("error creating file: %v", err)
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	for _, line := range lines {
-		fmt.Println("line:", line)
-		if err := writer.Write([]string{line}); err != nil {
-			return fmt.Errorf("error writing to file: %v", err)
-		}
-	}
-	return nil
-}
-
-//	func main() {
-//		keys := "1500_W_Anthony_Dr" // Keys to process
-//		intermediatePrefix := "select_Anthony"
-//		outputFilename := "output.csv"
-//		err := juice(keys, intermediatePrefix, outputFilename)
-//		if err != nil {
-//			fmt.Println("Error executing juice function:", err)
-//		} else {
-//			fmt.Println("Juice function executed successfully.")
-//		}
-//	}
 
 func main() {
 	// TODO: Read the intermediate files from SDFS to local

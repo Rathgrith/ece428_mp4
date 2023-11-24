@@ -17,11 +17,18 @@ type server struct {
 }
 
 func (s *server) ExecuteMaple(ctx context.Context, req *idl.MapleRequest) (*idl.MapleResponse, error) {
-	output, err := runCommand(req.Exe, "-input", req.SrcDir, "-prefix", req.Prefix, "-regex", "Rd")
-	if err != nil {
-		return nil, err
+	fmt.Printf("Received Maple request: %+v\n", req)
+	if req.Exe == "joinMaple.exe" {
+		fmt.Println("Join Maple")
+		return &idl.MapleResponse{Output: "Join Maple"}, nil
+	} else {
+		fmt.Println("Filter Maple")
+		output, err := runCommand(req.Exe, "-input", req.SrcDir1, "-prefix", req.Prefix, "-regex", req.Regex)
+		if err != nil {
+			return nil, err
+		}
+		return &idl.MapleResponse{Output: output}, nil
 	}
-	return &idl.MapleResponse{Output: output}, nil
 }
 
 func (s *server) ExecuteJuice(ctx context.Context, req *idl.JuiceRequest) (*idl.JuiceResponse, error) {

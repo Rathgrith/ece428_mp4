@@ -104,7 +104,10 @@ func main() {
 	inputFile := flag.String("input", "", "Path to the input CSV file")
 	prefix := flag.String("prefix", "", "Prefix for the output CSV files")
 	regexPattern := flag.String("regex", "", "Regular expression to match lines in the CSV")
-
+	col1 := flag.Int("col1", -1, "First column to join on")
+	if *col1 != -1 {
+		fmt.Println("Unsupported column specification on: ", *col1)
+	}
 	// Parse the command line flags
 	flag.Parse()
 
@@ -123,34 +126,3 @@ func main() {
 		fmt.Println("Maple function executed successfully.")
 	}
 }
-
-// // Function to append a line to a CSV file
-// func appendToCSV(filename, key, value string) error {
-// 	outFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-// 	if err != nil {
-// 		return fmt.Errorf("error opening output file: %v", err)
-// 	}
-// 	defer outFile.Close()
-
-// 	writer := csv.NewWriter(outFile)
-// 	defer writer.Flush()
-
-// 	if err := writer.Write([]string{key, value}); err != nil {
-// 		return fmt.Errorf("error writing CSV record: %v", err)
-// 	}
-
-// 	return nil
-// }
-
-// func main() {
-// 	inputFile := "map/test2.csv"
-// 	prefix := "select_Anthony"
-// 	regexPattern := "Anthony"
-
-//		err := maple(inputFile, prefix, regexPattern)
-//		if err != nil {
-//			fmt.Println("Error executing maple function:", err)
-//		} else {
-//			fmt.Println("Maple function executed successfully.")
-//		}
-//	}
