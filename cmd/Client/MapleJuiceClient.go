@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+// run command: go run .\cmd\Client\MapleJuiceClient.go maple --exe "./filterMaple.exe" --num 1 --prefix intermediate --srcdir test3.csv --regex "Prairiewest"
+// go run .\cmd\Client\MapleJuiceClient.go juice --exe "./filterJuice.exe" --num 1 --prefix intermediate --output output.csv -delete 1
 func main() {
 	// Command line arguments
 	mapleCmd := flag.NewFlagSet("maple", flag.ExitOnError)

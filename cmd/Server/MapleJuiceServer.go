@@ -12,6 +12,7 @@ import (
 	"ece428_mp4/idl" // Adjust with the actual generated package path
 )
 
+// sample command: go run .\cmd\Server\MapleJuiceServer.go
 type server struct {
 	idl.UnimplementedMapleJuiceServiceServer
 }
