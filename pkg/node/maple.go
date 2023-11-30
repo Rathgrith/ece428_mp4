@@ -20,7 +20,8 @@ type RunMapleTaskHandler struct {
 	req      *idl.RunMapleTaskRequest
 	fsClient *SDFSSDK.SDFSClient
 
-	resp *idl.RunMapleTaskResponse
+	resp         *idl.RunMapleTaskResponse
+	exeStorePath string
 }
 
 func NewRunMapleTaskHandler(ctx context.Context, request *idl.RunMapleTaskRequest, client *SDFSSDK.SDFSClient) *RunMapleTaskHandler {
@@ -52,7 +53,8 @@ func (h *RunMapleTaskHandler) Handle() (*idl.RunMapleTaskResponse, error) {
 
 func (h *RunMapleTaskHandler) loadExeFile() error {
 	exeName := h.req.GetExeName()
-	err := h.fsClient.GetFileToLocal(exeName, exeName, DefaultExeStoreDir)
+	h.exeStorePath = DefaultStoreDir + "/" + h.req.GetAttemptId()
+	err := h.fsClient.GetFileToLocal(exeName, exeName, h.exeStorePath)
 	if err != nil {
 		return fmt.Errorf("load exe file failed:%w", err)
 	}
@@ -60,7 +62,8 @@ func (h *RunMapleTaskHandler) loadExeFile() error {
 }
 
 func (h *RunMapleTaskHandler) runExeFile() error {
-	exeCmd := exec.Command(DefaultExeStoreDir + "/" + h.req.GetExeName())
+	exeCmd := exec.Command("./" + h.req.GetExeName())
+	exeCmd.Dir = h.exeStorePath
 
 	exeStdin, _ := exeCmd.StdinPipe()
 	exeStdout, _ := exeCmd.StdoutPipe()

@@ -8,12 +8,11 @@ import (
 )
 
 const (
-	DefaultPerm = 0755
+	DefaultPerm = 0777
 )
 
 const (
-	DefaultStoreDir    = "./workspace"
-	DefaultExeStoreDir = DefaultStoreDir + "/exe"
+	DefaultStoreDir = "./workspace"
 )
 
 type ManageServiceHandler struct {
@@ -30,8 +29,12 @@ func NewManageHandler() *ManageServiceHandler {
 }
 
 func (h *ManageServiceHandler) InitEnv() error {
+	err := os.RemoveAll(DefaultStoreDir)
+	if err != nil {
+		return err
+	}
 	for _, dir := range []string{
-		DefaultStoreDir, DefaultExeStoreDir,
+		DefaultStoreDir,
 	} {
 		err := os.MkdirAll(dir, DefaultPerm)
 		if err != nil {

@@ -66,7 +66,11 @@ func (c *SDFSClient) ReadFileToLocal(filename string, offset, size int, storeNam
 		return fmt.Errorf("get reader failed:%w", err)
 	}
 
-	f, err := os.OpenFile(storeDir+"/"+storeName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	err = os.MkdirAll(storeDir, 0777)
+	if err != nil {
+		return err
+	}
+	f, err := os.OpenFile(storeDir+"/"+storeName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return fmt.Errorf("can not create file:%w", err)
 	}

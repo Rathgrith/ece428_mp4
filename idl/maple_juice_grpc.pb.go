@@ -103,3 +103,89 @@ var NodeManageService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "maple_juice.proto",
 }
+
+// JobManageServiceClient is the client API for JobManageService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type JobManageServiceClient interface {
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartBeatResponse, error)
+}
+
+type jobManageServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewJobManageServiceClient(cc grpc.ClientConnInterface) JobManageServiceClient {
+	return &jobManageServiceClient{cc}
+}
+
+func (c *jobManageServiceClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartBeatResponse, error) {
+	out := new(HeartBeatResponse)
+	err := c.cc.Invoke(ctx, "/idl.JobManageService/Heartbeat", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// JobManageServiceServer is the server API for JobManageService service.
+// All implementations must embed UnimplementedJobManageServiceServer
+// for forward compatibility
+type JobManageServiceServer interface {
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartBeatResponse, error)
+	mustEmbedUnimplementedJobManageServiceServer()
+}
+
+// UnimplementedJobManageServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedJobManageServiceServer struct {
+}
+
+func (UnimplementedJobManageServiceServer) Heartbeat(context.Context, *HeartbeatRequest) (*HeartBeatResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Heartbeat not implemented")
+}
+func (UnimplementedJobManageServiceServer) mustEmbedUnimplementedJobManageServiceServer() {}
+
+// UnsafeJobManageServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to JobManageServiceServer will
+// result in compilation errors.
+type UnsafeJobManageServiceServer interface {
+	mustEmbedUnimplementedJobManageServiceServer()
+}
+
+func RegisterJobManageServiceServer(s grpc.ServiceRegistrar, srv JobManageServiceServer) {
+	s.RegisterService(&JobManageService_ServiceDesc, srv)
+}
+
+func _JobManageService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JobManageServiceServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/idl.JobManageService/Heartbeat",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JobManageServiceServer).Heartbeat(ctx, req.(*HeartbeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// JobManageService_ServiceDesc is the grpc.ServiceDesc for JobManageService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var JobManageService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "idl.JobManageService",
+	HandlerType: (*JobManageServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Heartbeat",
+			Handler:    _JobManageService_Heartbeat_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "maple_juice.proto",
+}

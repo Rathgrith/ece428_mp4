@@ -42,3 +42,15 @@ message ExecuteMapleJobRequest {
 message ExecuteMapleJobResponse {
   StatusCode code = 1;
 }
+
+service JobManageService {
+  rpc Heartbeat (HeartbeatRequest) returns (HeartBeatResponse);
+}
+
+message HeartbeatRequest {
+  string host = 1;
+}
+
+message HeartBeatResponse {
+
+}

@@ -1,30 +1,36 @@
 package main
 
 import (
+	"context"
+	"ece428_mp4/idl"
 	"ece428_mp4/pkg/logutil"
-	"ece428_mp4/pkg/maple_juice"
-	"ece428_mp4/pkg/node"
-	SDFSSDK "ece428_mp4/sdfs/sdk"
+	"ece428_mp4/pkg/maple_juice/job"
 	"github.com/sirupsen/logrus"
-	"strconv"
-	"strings"
 )
 
 func main() {
 	logutil.InitDefaultLogger(logrus.DebugLevel)
-	err := node.NewManageHandler().InitEnv()
-	if err != nil {
-		panic(err)
-	}
-	client := SDFSSDK.NewSDFSClient()
-	//inputFilename := "test.csv"
-	//exeFile := "test_exe"
+	//client := SDFSSDK.NewSDFSClient()
+	inputFilename := "test.csv"
+	exeFile := "test_exe"
 
-	err = client.GetFileToLocal("hello_even-test", "hello_even-test", "./workspace")
-	if err != nil {
-		panic(err)
-	}
-	err = client.GetFileToLocal("hello_odd-test", "hello_odd-test", "./workspace")
+	//err = client.GetFileToLocal("hello_even-test", "hello_even-test", "./workspace")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//err = client.GetFileToLocal("hello_odd-test", "hello_odd-test", "./workspace")
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	jobManager := job.NewJobManager()
+	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
+	err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+		ExeName:                    exeFile,
+		IntermediateFilenamePrefix: "TEST2",
+		InputFiles:                 []string{inputFilename},
+		NumMaples:                  3,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -162,21 +168,4 @@ func main() {
 	//if err != nil {
 	//	panic(err)
 	//}
-}
-
-func testMapper(kv *maple_juice.KV) (*maple_juice.KV, error) {
-	var key string
-	value := string(kv.Value.([]byte))
-	cols := strings.Split(value, ",")
-	line, _ := strconv.Atoi(cols[0])
-	if line%2 == 0 {
-		key = "even"
-	} else {
-		key = "odd"
-	}
-
-	return &maple_juice.KV{
-		Key:   key,
-		Value: value,
-	}, nil
 }
