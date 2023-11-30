@@ -5,27 +5,29 @@ import (
 	"ece428_mp4/idl"
 	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/maple_juice/job"
+	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	logutil.InitDefaultLogger(logrus.DebugLevel)
-	//client := SDFSSDK.NewSDFSClient()
+	client := SDFSSDK.NewSDFSClient()
 	inputFilename := "test.csv"
 	exeFile := "test_exe"
 
-	//err = client.GetFileToLocal("hello_even-test", "hello_even-test", "./workspace")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//err = client.GetFileToLocal("hello_odd-test", "hello_odd-test", "./workspace")
-	//if err != nil {
-	//	panic(err)
-	//}
+	err := client.PutLocalFile(exeFile, exeFile, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
 
 	jobManager := job.NewJobManager()
 	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
-	err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+	err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 		ExeName:                    exeFile,
 		IntermediateFilenamePrefix: "TEST2",
 		InputFiles:                 []string{inputFilename},

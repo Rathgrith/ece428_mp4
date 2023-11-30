@@ -69,7 +69,7 @@ func NewMapleJobTracker(req *idl.ExecuteMapleJobRequest, rpcClientManager *rpc.C
 
 func (t *MapleJobTracker) ExecuteJob() error {
 	for _, handleFUnc := range []func() error{
-		t.splitInputFiles, t.generateTasks, t.dispatchAndMonitor,
+		t.splitInputFiles, t.generateTasks, t.dispatchAndMonitor, t.mergeTmpIntermediates,
 	} {
 		if err := handleFUnc(); err != nil {
 			logutil.Logger.Errorf("job failed:%v", err)
@@ -151,6 +151,22 @@ func (t *MapleJobTracker) dispatchAndMonitor() error {
 	}
 }
 
+func (t *MapleJobTracker) mergeTmpIntermediates() error {
+	for intermediateName, tmps := range t.tempIntermediates {
+		err := t.fsClient.TouchFile(intermediateName)
+		if err != nil {
+			return fmt.Errorf("can not create intermediate:%w", err)
+		}
+		logutil.Logger.Debugf("create intermediate (%s)", intermediateName)
+
+		err = t.fsClient.MergeFiles(intermediateName, tmps, true, false)
+		if err != nil {
+			return fmt.Errorf("can not merge tmp intermediates:%w", err)
+		}
+	}
+	return nil
+}
+
 func (t *MapleJobTracker) runTasks(task *MapleTask) {
 	req := task.Request
 
@@ -217,7 +233,11 @@ func (t *MapleJobTracker) selectTargetHost(task *MapleTask) (string, error) {
 		}
 		count += 1
 		if count > 2*len(preferredHosts) {
-			return "", fmt.Errorf("no avaiable host")
+			available := t.jobManager.GetAvailableHost()
+			if available == nil || len(available) == 0 {
+				return "", fmt.Errorf("can not get any available node")
+			}
+			selectedHost = available[rand.Intn(len(available))]
 		}
 	}
 
@@ -228,7 +248,7 @@ func (t *MapleJobTracker) processResp(resp *idl.RunMapleTaskResponse) {
 	for _, tmpIntermediate := range resp.GetTmpIntermediateFiles() {
 		parts := strings.Split(tmpIntermediate, "-")
 		suffix := parts[len(parts)-1]
-		intermediate := strings.TrimSuffix(tmpIntermediate, suffix)
+		intermediate := strings.TrimSuffix(tmpIntermediate, "-"+suffix)
 
 		t.tempIntermediates[intermediate] = append(t.tempIntermediates[intermediate], tmpIntermediate)
 	}
