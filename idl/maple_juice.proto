@@ -1,0 +1,44 @@
+syntax = "proto3";
+package idl;
+option go_package = "./idl";
+import "share.proto";
+
+service NodeManageService {
+  rpc RunMapleTask (RunMapleTaskRequest) returns (RunMapleTaskResponse);
+}
+
+enum InputFormatterType {
+  Undefined = 0;
+  LineTextInput = 1;
+}
+
+message InputSplit {
+  string input_file_name = 1;
+  int32 input_offset = 2;
+  int32 input_size = 3;
+}
+
+message RunMapleTaskRequest {
+  string exe_name = 1;
+  string intermediate_filename_prefix = 2;
+  repeated InputSplit input_splits = 3;
+
+  string attempt_id = 4;
+}
+
+message RunMapleTaskResponse {
+  StatusCode code = 1;
+  repeated string tmp_intermediate_files = 2;
+  optional string ErrInfo = 3;
+}
+
+message ExecuteMapleJobRequest {
+  string exe_name = 1;
+  string intermediate_filename_prefix = 2;
+  repeated string input_files = 3;
+  int32 num_maples = 4;
+}
+
+message ExecuteMapleJobResponse {
+  StatusCode code = 1;
+}

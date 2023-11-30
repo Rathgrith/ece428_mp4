@@ -1,0 +1,34 @@
+syntax = "proto3";
+package sdfs;
+option go_package = "./idl";
+
+enum StatusCode {
+  Unknown = 0;
+  Success = 1;
+  Error   = 2;
+
+  WriteToLocalFailed = 100;
+  WriteToLocalSuccess = 101;
+  WriteToReplicasFailed = 102;
+  FileDoNotExistError = 103;
+
+  ReadCompleted = 203;
+}
+
+message NodeInfo {
+  string hostname = 1;
+}
+
+message FileReport {
+  string name = 1;
+  string version_stamp = 2;
+  int32 size = 3;
+}
+
+message DeleteFileRequest {
+  string filename = 1;
+}
+
+message DeleteFileResponse {
+  StatusCode code = 1;
+}

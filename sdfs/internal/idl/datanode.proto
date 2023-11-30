@@ -1,0 +1,98 @@
+syntax = "proto3";
+package sdfs;
+option go_package = "./idl";
+import "common.proto";
+
+service DataNodeService {
+  rpc StoreFile(stream StoreFileRequest) returns (StoreFileResponse);
+  rpc ReplicateFile(ReplicateFileRequest) returns (ReplicateFileResponse);
+  rpc ReadFile(ReadFileRequest) returns (stream ReadFileResponse);
+  rpc GetFileReports(GetFileReportsRequest) returns (GetFileReportsResponse);
+  rpc UploadFile(stream UploadFileRequest) returns (stream UploadFileResponse);
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+  rpc GetFileSize(GetFileSizeRequest) returns (GetFileSizeResponse);
+  rpc MergeFiles(MergeFilesRequest) returns (MergeFilesResponse);
+}
+
+message StoreFileRequest {
+  string filename = 1;
+  repeated NodeInfo replica_nodes = 2;
+  bytes content = 3;
+}
+
+message StoreFileResponse {
+  StatusCode code = 1;
+}
+
+message ReplicateFileRequest {
+  string filename = 1;
+  repeated NodeInfo replica_nodes = 2;
+}
+
+message ReplicateFileResponse {
+  StatusCode code = 1;
+}
+
+message ReadFileRequest {
+  string filename = 1;
+  optional int32 offset = 2;
+  optional int32 size = 3;
+}
+
+message ReadFileResponse {
+  StatusCode code = 1;
+  bytes content = 2;
+}
+
+message GetFileReportsRequest {
+
+}
+
+message GetFileReportsResponse {
+  StatusCode code = 1;
+  repeated FileReport files = 2;
+}
+
+enum UploadControl {
+  empty = 0;
+  file_send_start = 1;
+  file_sending = 2;
+  file_eof = 3;
+  upload_end = 4;
+
+  file_received = 100;
+  internal_error = 101;
+  confirm_end = 102;
+}
+
+message UploadFileRequest {
+  string filename = 1;
+  UploadControl control_info = 3;
+  optional bytes content = 2;
+}
+
+message UploadFileResponse {
+  UploadControl control_info = 1;
+  optional string filename = 2;
+}
+
+message GetFileSizeRequest {
+  string filename = 1;
+}
+
+message GetFileSizeResponse {
+  StatusCode code = 1;
+  int32 size = 2;
+}
+
+message MergeFilesRequest {
+  string out_filename = 1;
+  repeated string filename_seq = 2;
+  repeated NodeInfo replica_nodes = 3;
+  bool delete = 4;
+  bool pad_new_line_symbol = 5;
+}
+
+message MergeFilesResponse {
+  StatusCode code = 1;
+}

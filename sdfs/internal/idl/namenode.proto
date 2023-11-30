@@ -1,0 +1,52 @@
+syntax = "proto3";
+package sdfs;
+option go_package = "./idl";
+import "common.proto";
+
+service NameNodeService {
+    rpc AskFileStore(AskFileStoreRequest) returns (AskFileStoreResponse); // ask where to write a file
+    rpc RegisterDataNode(RegisterDataNodeRequest) returns (RegisterDataNodeResponse);
+    rpc QueryFile(QueryFileRequest) returns (QueryFileResponse);
+    rpc AckFileStore(AckFileStoreRequest) returns (AckFileStoreResponse);
+    rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+}
+
+message AskFileStoreRequest {
+    string filename = 1;
+}
+
+message AskFileStoreResponse {
+    StatusCode code = 1;
+    NodeInfo coordinator = 2;
+    repeated NodeInfo secondaries = 3;
+}
+
+message QueryFileRequest {
+    string filename = 1;
+}
+
+message QueryFileResponse {
+    StatusCode code = 1;
+    NodeInfo coordinator = 2;
+    repeated NodeInfo secondaries = 3;
+}
+
+message RegisterDataNodeRequest {
+    NodeInfo node = 1;
+    repeated FileReport files = 2;
+}
+
+message RegisterDataNodeResponse {
+    StatusCode code = 1;
+}
+
+message AckFileStoreRequest {
+    FileReport file_info = 1;
+    repeated NodeInfo replicas = 2;
+}
+
+message AckFileStoreResponse {
+    StatusCode code = 1;
+}
+
+
