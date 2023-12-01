@@ -104,6 +104,7 @@ func (t *MapleJobTracker) generateTasks() error {
 			IntermediateFilenamePrefix: t.req.GetIntermediateFilenamePrefix(),
 			InputSplits:                []*idl.InputSplit{splitInfo.Split},
 			AttemptId:                  "",
+			ExeArgs:                    t.req.ExeArgs,
 		}
 
 		task := MapleTask{

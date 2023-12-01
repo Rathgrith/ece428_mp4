@@ -64,7 +64,7 @@ func (h *RunMapleTaskHandler) loadExeFile() error {
 }
 
 func (h *RunMapleTaskHandler) runExeFile() error {
-	exeCmd := exec.Command("./" + h.req.GetExeName())
+	exeCmd := exec.Command("./"+h.req.GetExeName(), h.req.GetExeArgs()...)
 	exeCmd.Dir = h.exeStorePath
 
 	exeStdin, _ := exeCmd.StdinPipe()
