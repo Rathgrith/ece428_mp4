@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeManageServiceClient interface {
 	RunMapleTask(ctx context.Context, in *RunMapleTaskRequest, opts ...grpc.CallOption) (*RunMapleTaskResponse, error)
+	RunJuiceTask(ctx context.Context, in *RunJuiceTaskRequest, opts ...grpc.CallOption) (*RunJuiceTaskResponse, error)
 }
 
 type nodeManageServiceClient struct {
@@ -42,11 +43,21 @@ func (c *nodeManageServiceClient) RunMapleTask(ctx context.Context, in *RunMaple
 	return out, nil
 }
 
+func (c *nodeManageServiceClient) RunJuiceTask(ctx context.Context, in *RunJuiceTaskRequest, opts ...grpc.CallOption) (*RunJuiceTaskResponse, error) {
+	out := new(RunJuiceTaskResponse)
+	err := c.cc.Invoke(ctx, "/idl.NodeManageService/RunJuiceTask", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeManageServiceServer is the server API for NodeManageService service.
 // All implementations must embed UnimplementedNodeManageServiceServer
 // for forward compatibility
 type NodeManageServiceServer interface {
 	RunMapleTask(context.Context, *RunMapleTaskRequest) (*RunMapleTaskResponse, error)
+	RunJuiceTask(context.Context, *RunJuiceTaskRequest) (*RunJuiceTaskResponse, error)
 	mustEmbedUnimplementedNodeManageServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedNodeManageServiceServer struct {
 
 func (UnimplementedNodeManageServiceServer) RunMapleTask(context.Context, *RunMapleTaskRequest) (*RunMapleTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RunMapleTask not implemented")
+}
+func (UnimplementedNodeManageServiceServer) RunJuiceTask(context.Context, *RunJuiceTaskRequest) (*RunJuiceTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunJuiceTask not implemented")
 }
 func (UnimplementedNodeManageServiceServer) mustEmbedUnimplementedNodeManageServiceServer() {}
 
@@ -88,6 +102,24 @@ func _NodeManageService_RunMapleTask_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeManageService_RunJuiceTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunJuiceTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeManageServiceServer).RunJuiceTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/idl.NodeManageService/RunJuiceTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeManageServiceServer).RunJuiceTask(ctx, req.(*RunJuiceTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeManageService_ServiceDesc is the grpc.ServiceDesc for NodeManageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var NodeManageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RunMapleTask",
 			Handler:    _NodeManageService_RunMapleTask_Handler,
+		},
+		{
+			MethodName: "RunJuiceTask",
+			Handler:    _NodeManageService_RunJuiceTask_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

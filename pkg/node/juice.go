@@ -12,21 +12,21 @@ import (
 	"os/exec"
 )
 
-func (h *ManageServiceHandler) RunMapleTask(ctx context.Context, request *idl.RunMapleTaskRequest) (*idl.RunMapleTaskResponse, error) {
-	return NewRunMapleTaskHandler(ctx, request, h.fsClient).Handle()
+func (h *ManageServiceHandler) RunJuiceTask(ctx context.Context, request *idl.RunJuiceTaskRequest) (*idl.RunJuiceTaskResponse, error) {
+	return NewRunJuiceTaskHandler(ctx, request, h.fsClient).Handle()
 }
 
-type RunMapleTaskHandler struct {
+type RunJuiceTaskHandler struct {
 	ctx      context.Context
-	req      *idl.RunMapleTaskRequest
+	req      *idl.RunJuiceTaskRequest
 	fsClient *SDFSSDK.SDFSClient
 
-	resp         *idl.RunMapleTaskResponse
+	resp         *idl.RunJuiceTaskResponse
 	exeStorePath string
 }
 
-func NewRunMapleTaskHandler(ctx context.Context, request *idl.RunMapleTaskRequest, client *SDFSSDK.SDFSClient) *RunMapleTaskHandler {
-	handler := RunMapleTaskHandler{
+func NewRunJuiceTaskHandler(ctx context.Context, request *idl.RunJuiceTaskRequest, client *SDFSSDK.SDFSClient) *RunJuiceTaskHandler {
+	handler := RunJuiceTaskHandler{
 		ctx:      ctx,
 		req:      request,
 		fsClient: client,
@@ -35,16 +35,16 @@ func NewRunMapleTaskHandler(ctx context.Context, request *idl.RunMapleTaskReques
 	return &handler
 }
 
-func (h *RunMapleTaskHandler) Handle() (*idl.RunMapleTaskResponse, error) {
+func (h *RunJuiceTaskHandler) Handle() (*idl.RunJuiceTaskResponse, error) {
 	for _, handleFUnc := range []func() error{
 		h.loadExeFile, h.runExeFile, h.processResp,
 	} {
 		if err := handleFUnc(); err != nil {
 			logutil.Logger.Error(err)
-			return &idl.RunMapleTaskResponse{
-				Code:                 idl.StatusCode_InternalErr,
-				TmpIntermediateFiles: nil,
-				ErrInfo:              proto.String(err.Error()),
+			return &idl.RunJuiceTaskResponse{
+				Code:              idl.StatusCode_InternalErr,
+				TmpOutputFilename: "",
+				ErrInfo:           proto.String(err.Error()),
 			}, nil
 		}
 	}
@@ -52,7 +52,7 @@ func (h *RunMapleTaskHandler) Handle() (*idl.RunMapleTaskResponse, error) {
 	return h.resp, nil
 }
 
-func (h *RunMapleTaskHandler) loadExeFile() error {
+func (h *RunJuiceTaskHandler) loadExeFile() error {
 	exeName := h.req.GetExeName()
 	h.exeStorePath = DefaultStoreDir + "/" + h.req.GetAttemptId()
 	os.MkdirAll(h.exeStorePath, 0777)
@@ -63,7 +63,7 @@ func (h *RunMapleTaskHandler) loadExeFile() error {
 	return nil
 }
 
-func (h *RunMapleTaskHandler) runExeFile() error {
+func (h *RunJuiceTaskHandler) runExeFile() error {
 	exeCmd := exec.Command("./" + h.req.GetExeName())
 	exeCmd.Dir = h.exeStorePath
 
@@ -84,7 +84,7 @@ func (h *RunMapleTaskHandler) runExeFile() error {
 
 	// read response of exe process
 	decoder := gob.NewDecoder(exeStdout)
-	resp := idl.RunMapleTaskResponse{}
+	resp := idl.RunJuiceTaskResponse{}
 	err = decoder.Decode(&resp)
 	if err != nil {
 		return fmt.Errorf("get response from exe failed:%w", err)
@@ -95,7 +95,7 @@ func (h *RunMapleTaskHandler) runExeFile() error {
 	return nil
 }
 
-func (h *RunMapleTaskHandler) processResp() error {
+func (h *RunJuiceTaskHandler) processResp() error {
 	if h.resp == nil {
 		return fmt.Errorf("get empty response")
 	}

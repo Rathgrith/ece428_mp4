@@ -48,7 +48,7 @@ func NewTaskWorker(inputSplits []*idl.InputSplit, client *SDFSSDK.SDFSClient, co
 		recordReaderNewFunc: readerNewFunc,
 		mapleFunc:           config.Func,
 		partitioner:         partitioner,
-		spiller:             spill.NewLocalKVSpiller("./workspace"+"/"+attemptID, client, attemptID),
+		spiller:             spill.NewLocalKVSpiller("./", client, attemptID),
 		attemptID:           attemptID,
 		intermediatePrefix:  intermediatePrefix,
 	}
@@ -63,7 +63,7 @@ func (tw *TaskWorker) Work() (*idl.RunMapleTaskResponse, error) {
 		}
 	}
 
-	intermediates, err := tw.spiller.Submit()
+	intermediates, err := tw.spiller.Commit()
 	if err != nil {
 		return nil, fmt.Errorf("submit spill file failed:%w", err)
 	}

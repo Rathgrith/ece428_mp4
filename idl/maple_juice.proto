@@ -5,11 +5,7 @@ import "share.proto";
 
 service NodeManageService {
   rpc RunMapleTask (RunMapleTaskRequest) returns (RunMapleTaskResponse);
-}
-
-enum InputFormatterType {
-  Undefined = 0;
-  LineTextInput = 1;
+  rpc RunJuiceTask (RunJuiceTaskRequest) returns (RunJuiceTaskResponse);
 }
 
 message InputSplit {
@@ -41,6 +37,20 @@ message ExecuteMapleJobRequest {
 
 message ExecuteMapleJobResponse {
   StatusCode code = 1;
+  repeated string intermediate_files = 2;
+}
+
+message RunJuiceTaskRequest {
+  string exe_name = 1;
+  repeated string input_intermediate_files = 2;
+  string out_put_filename = 3;
+  string attempt_id = 4;
+}
+
+message RunJuiceTaskResponse {
+  StatusCode code = 1;
+  string tmp_output_filename = 2;
+  optional string ErrInfo = 3;
 }
 
 service JobManageService {

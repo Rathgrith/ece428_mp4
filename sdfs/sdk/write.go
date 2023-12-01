@@ -27,14 +27,14 @@ func NewStreamWriter(stream idl2.DataNodeService_StoreFileClient) *StreamWriter 
 	return &writer
 }
 
-func (w *StreamWriter) Write(content []byte) error {
+func (w *StreamWriter) Write(content []byte) (int, error) {
 	// TODO: buffer
 	if err := w.stream.Send(&idl2.StoreFileRequest{
 		Content: content,
 	}); err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return len(content), nil
 }
 
 func (w *StreamWriter) Close() error {
@@ -110,7 +110,7 @@ func (c *SDFSClient) PutLocalFile(filename string, localFilename string, storeDi
 			return fmt.Errorf("read from local file failed:%w", err)
 		}
 
-		if err = writer.Write(sendBuf[:l]); err != nil {
+		if _, err = writer.Write(sendBuf[:l]); err != nil {
 			return fmt.Errorf("write file failed:%w", err)
 		}
 	}
@@ -237,7 +237,7 @@ func (c *SDFSClient) TempPutLocalFile(filename string, tempSuffix string, localF
 			return fmt.Errorf("read from local file failed:%w", err)
 		}
 
-		if err = writer.Write(sendBuf[:l]); err != nil {
+		if _, err = writer.Write(sendBuf[:l]); err != nil {
 			return fmt.Errorf("write file failed:%w", err)
 		}
 	}

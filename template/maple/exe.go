@@ -61,8 +61,8 @@ func ReturnResponse(response *idl.RunMapleTaskResponse) {
 
 func ReturnErrResponse(err error) {
 	ReturnResponse(&idl.RunMapleTaskResponse{
-		Code:              idl.StatusCode_InternalErr,
-		IntermediateFiles: nil,
-		ErrInfo:           proto.String(err.Error()),
+		Code:                 idl.StatusCode_InternalErr,
+		TmpIntermediateFiles: nil,
+		ErrInfo:              proto.String(err.Error()),
 	})
 }

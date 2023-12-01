@@ -35,7 +35,7 @@ func NewJobManager() *Manager {
 
 func (m *Manager) SubmitMapleJob(req *idl.ExecuteMapleJobRequest) error {
 	tracker := NewMapleJobTracker(req, m.rpcClientManager, m.fsClient, m)
-	err := tracker.ExecuteJob()
+	_, err := tracker.ExecuteJob()
 	if err != nil {
 		return err
 	}

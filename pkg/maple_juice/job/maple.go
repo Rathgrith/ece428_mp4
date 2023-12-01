@@ -45,6 +45,8 @@ type MapleJobTracker struct {
 	errChan           chan error
 	exeLocateHosts    []string
 	tempIntermediates map[string][]string
+
+	resp *idl.ExecuteMapleJobResponse
 }
 
 func NewMapleJobTracker(req *idl.ExecuteMapleJobRequest, rpcClientManager *rpc.ClientManager,
@@ -67,16 +69,16 @@ func NewMapleJobTracker(req *idl.ExecuteMapleJobRequest, rpcClientManager *rpc.C
 	return &tracker
 }
 
-func (t *MapleJobTracker) ExecuteJob() error {
+func (t *MapleJobTracker) ExecuteJob() (*idl.ExecuteMapleJobResponse, error) {
 	for _, handleFUnc := range []func() error{
-		t.splitInputFiles, t.generateTasks, t.dispatchAndMonitor, t.mergeTmpIntermediates,
+		t.splitInputFiles, t.generateTasks, t.dispatchAndMonitor, t.mergeTmpIntermediates, t.generateJobResponse,
 	} {
 		if err := handleFUnc(); err != nil {
 			logutil.Logger.Errorf("job failed:%v", err)
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return t.resp, nil
 }
 
 func (t *MapleJobTracker) splitInputFiles() error {
@@ -164,6 +166,22 @@ func (t *MapleJobTracker) mergeTmpIntermediates() error {
 			return fmt.Errorf("can not merge tmp intermediates:%w", err)
 		}
 	}
+	return nil
+}
+
+func (t *MapleJobTracker) generateJobResponse() error {
+	intermediates := make([]string, 0, len(t.tempIntermediates))
+	for filename := range t.tempIntermediates {
+		intermediates = append(intermediates, filename)
+	}
+
+	resp := idl.ExecuteMapleJobResponse{
+		Code:              idl.StatusCode_Success,
+		IntermediateFiles: intermediates,
+	}
+
+	t.resp = &resp
+
 	return nil
 }
 

@@ -11,60 +11,59 @@ import (
 
 type KVSpiller interface {
 	Spill(string, *maple_juice.KV) error
-	Submit() ([]string, error)
+	Commit() ([]string, error)
 }
 
 type LocalKVSpiller struct {
-	partitions map[string]*bufio.Writer
-	storeDir   string
-	SDFCClient *SDFSSDK.SDFSClient
-	taskID     string
+	partitionWriters map[string]*bufio.Writer
+	encoders         map[string]*json.Encoder
+	storeDir         string
+	SDFCClient       *SDFSSDK.SDFSClient
+	attemptID        string
 }
 
 func NewLocalKVSpiller(storeDir string, client *SDFSSDK.SDFSClient, ID string) *LocalKVSpiller {
 	spiller := LocalKVSpiller{
-		partitions: make(map[string]*bufio.Writer),
-		storeDir:   storeDir,
-		SDFCClient: client,
-		taskID:     ID,
+		partitionWriters: make(map[string]*bufio.Writer),
+		encoders:         make(map[string]*json.Encoder),
+		storeDir:         storeDir,
+		SDFCClient:       client,
+		attemptID:        ID,
 	}
 	return &spiller
 }
 
 func (s *LocalKVSpiller) Spill(partitionID string, kv *maple_juice.KV) error {
-	os.MkdirAll(s.storeDir, 0777)
-	if _, exist := s.partitions[partitionID]; !exist {
+	if _, exist := s.partitionWriters[partitionID]; !exist {
 		localFileHandle, err := os.Create(s.storeDir + "/" + partitionID)
 		if err != nil {
 			return fmt.Errorf("can not create local spill file:%w", err)
 		}
-		s.partitions[partitionID] = bufio.NewWriter(localFileHandle)
+		writer := bufio.NewWriter(localFileHandle)
+		s.partitionWriters[partitionID] = writer
+		s.encoders[partitionID] = json.NewEncoder(writer)
 	}
 
-	content, err := json.Marshal(kv)
+	err := s.encoders[partitionID].Encode(kv)
 	if err != nil {
-		return fmt.Errorf("can not marshal kv:%w", err)
-	}
-
-	if _, err = s.partitions[partitionID].Write(content); err != nil {
 		return fmt.Errorf("can not spill current kv:%w", err)
 	}
 
 	return nil
 }
 
-func (s *LocalKVSpiller) Submit() ([]string, error) {
-	partitionSDFSNames := make([]string, 0, len(s.partitions))
-	for partitionID, writer := range s.partitions {
+func (s *LocalKVSpiller) Commit() ([]string, error) {
+	partitionSDFSNames := make([]string, 0, len(s.partitionWriters))
+	for partitionID, writer := range s.partitionWriters {
 		err := writer.Flush()
 		if err != nil {
 			return nil, fmt.Errorf("can not write to %v : %w", partitionID, err)
 		}
-		err = s.SDFCClient.TempPutLocalFile(partitionID, s.taskID, partitionID, s.storeDir)
+		err = s.SDFCClient.TempPutLocalFile(partitionID, s.attemptID, partitionID, s.storeDir)
 		if err != nil {
 			return nil, fmt.Errorf("can not upload partition (%s):%w", partitionID, err)
 		}
-		partitionSDFSNames = append(partitionSDFSNames, partitionID+"-"+s.taskID)
+		partitionSDFSNames = append(partitionSDFSNames, partitionID+"-"+s.attemptID)
 	}
 	return partitionSDFSNames, nil
 }
