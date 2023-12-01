@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package TaskScheduler;
+option go_package = "./idl";
+
+service MapleJuiceScheduler {
+    rpc EnqueueTask(TaskRequest) returns (TaskResponse);
+}
+
+message TaskRequest {
+    string taskType = 1;
+    string exe = 2;
+    int32 numJobs = 3;
+    string prefix = 4;
+    string srcDir1 = 5;
+    string srcDir2 = 6;
+    string regex = 7;
+    int32 joinColumn1 = 8;
+    int32 joinColumn2 = 9;
+    string destFile = 10;
+    }
+
+message TaskResponse {
+    string message = 1;
+}
