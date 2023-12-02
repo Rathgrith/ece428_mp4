@@ -52,8 +52,6 @@ func parseSQLQuery(sql string) (SQLQuery, error) {
 
 func main() {
 	serverAddr := flag.String("server_addr", "fa23-cs425-4801.cs.illinois.edu:50051", "The server address in the format of host:port")
-	// taskType := flag.String("type", "maple", "Type of the task (maple or juice)")
-	// executable := flag.String("exe", "filtermaple", "Path to the executable")
 	numJobs := flag.Int("numJobs", 1, "Number of maple tasks")
 	prefix := flag.String("prefix", "inter", "Prefix for intermediate files")
 	srcDir1 := flag.String("src_dir1", "./test1.csv", "Source directory 1 for maple/juice task")
@@ -107,11 +105,12 @@ func main() {
 	// ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	query.Operation = "filter"
+	// query.Operation = "filter"
+	fmt.Printf("Sending query: %+v\n", query)
 	if query.Operation == "filter" {
 		mapleResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType: "maple",
-			Exe:      "./filterMaple.exe",
+			Exe:      "filterMaple.exe",
 			NumJobs:  int32(*numJobs),
 			Prefix:   *prefix,
 			SrcDir1:  *srcDir1,
