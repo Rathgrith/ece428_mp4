@@ -1,4 +1,3 @@
-OBJECTID,Address,Parcel,Units,Stories,UniqueID,Building_Name,Complex_Name,Case_Number,Building_Type,Status,Last_Date,Comments,Safety_Comments,Fire_Alarms,Sprinkler,Managing_Company,MFRecyclingStatus,ShapeSTArea,ShapeSTLength,StreetName,Part1,Part2
 1,2009 Moreland Blvd,412001126038,36,3,0.0,2009 Moreland Blvd,University Village at Champaign,AI07-0147,Complex,,2007/10/29 05:00:00+00,,,Yes,Yes,,Yes,19657.9969334952,929.167803643577,Moreland Blvd,2009,Moreland Blvd
 2,2011 Moreland Blvd,412001126038,36,3 ,1.0,2011 Moreland Blvd,University Village at Champaign,AI07-0147,Complex,,2007/10/29 05:00:00+00,,,Yes,Yes,,Yes,19735.5124108059,950.1942170442,Moreland Blvd,2011,Moreland Blvd
 3,2007 Moreland Blvd,412001126038,24,3,2.0,2007 Moreland Blvd,University Village at Champaign,AI07-0147,Complex,,2007/10/29 05:00:00+00,,,Yes,Yes,,Yes,13970.1792078704,678.398035043404,Moreland Blvd,2007,Moreland Blvd
