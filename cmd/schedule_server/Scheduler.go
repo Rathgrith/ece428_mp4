@@ -137,7 +137,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 func main() {
 	logutil.InitDefaultLogger(logrus.DebugLevel)
 	client := SDFSSDK.NewSDFSClient()
-	inputFilename := "test.csv"
+	// inputFilename := "test.csv"
 	mapleExe := "filterMaple.exe"
 	juiceExe := "filterJuice.exe"
 
@@ -151,10 +151,10 @@ func main() {
 		panic(err)
 	}
 
-	err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
-	if err != nil {
-		panic(err)
-	}
+	// err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	taskQueue := make(chan Task, 100) // Task queue with a buffer of 100 tasks
 
 	// Create and start the gRPC server
