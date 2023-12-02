@@ -6,9 +6,11 @@ import (
 	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/maple_juice/job"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"log"
 	"net"
+	"strconv"
+
+	"github.com/sirupsen/logrus"
 
 	"google.golang.org/grpc"
 )
@@ -37,7 +39,7 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 		OutDir:        req.DestFile,
 		completionSig: completion,
 	}
-
+	fmt.Printf("Task: %+v\n", task)
 	// Enqueue the task
 	s.taskQueue <- task
 	result := <-completion
@@ -65,18 +67,60 @@ type Task struct {
 // executeTask simulates task execution
 func executeTask(jobManager *job.Manager, task Task) {
 	fmt.Printf("Executing task: %+v\n", task)
-
-	err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-		ExeName:                    task.Executable,
-		IntermediateFilenamePrefix: task.Prefix,
-		InputFiles:                 []string{task.SrcDir1},
-		NumMaples:                  int32(task.NumTasks),
-		ExeArgs:                    []string{fmt.Sprintf("-regex %s", task.Regex)},
-	})
-	if err != nil {
-		panic(err)
+	if task.Executable == "filterMaple.exe" {
+		err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    task.Executable,
+			IntermediateFilenamePrefix: task.Prefix,
+			InputFiles:                 []string{task.SrcDir1},
+			NumMaples:                  int32(task.NumTasks),
+			ExeArgs:                    []string{task.Regex},
+		})
+		if err != nil {
+			panic(err)
+		}
+		// } else if task.Executable == "filterJuice.exe" {
+		// 	err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+		// 		ExeName:                task.Executable,
+		// 		InputIntermediateFiles: []string{task.Prefix},
+		// 		OutPutFilename:         task.OutDir,
+		// 		AttemptId:              "JUICE1_1",
+		// 	})
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+	} else if task.Executable == "joinMaple.exe" {
+		err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    task.Executable,
+			IntermediateFilenamePrefix: task.Prefix,
+			InputFiles:                 []string{task.SrcDir1},
+			NumMaples:                  int32(task.NumTasks),
+			ExeArgs:                    []string{strconv.Itoa(int(task.JoinColumn1)), " D1"},
+		})
+		if err != nil {
+			panic(err)
+		}
+		err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    task.Executable,
+			IntermediateFilenamePrefix: task.Prefix,
+			InputFiles:                 []string{task.SrcDir2},
+			NumMaples:                  int32(task.NumTasks),
+			ExeArgs:                    []string{strconv.Itoa(int(task.JoinColumn2)), " D2"},
+		})
+		if err != nil {
+			panic(err)
+		}
+		// } else if task.Executable == "joinJuice.exe" {
+		// 	err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+		// 		ExeName:                task.Executable,
+		// 		InputIntermediateFiles: []string{task.Prefix},
+		// 		OutPutFilename:         task.OutDir,
+		// 		AttemptId:              "JUICE1_1",
+		// 	})
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// }
 	}
-
 	fmt.Printf("Task completed: %+v\n", task)
 	// Signal task completion
 	task.completionSig <- "Task completed successfully with output file: " + task.OutDir

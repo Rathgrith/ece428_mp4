@@ -7,8 +7,9 @@ import (
 	"ece428_mp4/pkg/maple_juice"
 	"ece428_mp4/pkg/maple_juice/job"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
-	"github.com/sirupsen/logrus"
 	"strconv"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 	//}
 
 	inputFilename := "test.csv"
-	exeFile := "test_exe"
+	exeFile := "filterMaple.exe"
 
 	err := client.PutLocalFile(exeFile, exeFile, "./workspace", true)
 	if err != nil {
@@ -54,7 +55,7 @@ func main() {
 		ExeName:                    exeFile,
 		IntermediateFilenamePrefix: "TEST2",
 		InputFiles:                 []string{inputFilename},
-		NumMaples:                  3,
+		NumMaples:                  1,
 		ExeArgs:                    []string{"-regex test_regex"},
 	})
 	if err != nil {

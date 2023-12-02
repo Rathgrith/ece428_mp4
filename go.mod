@@ -10,6 +10,7 @@ require (
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect

@@ -9,8 +9,9 @@ import (
 	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"encoding/gob"
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"os"
+
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {
