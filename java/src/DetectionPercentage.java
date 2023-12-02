@@ -13,28 +13,27 @@ import java.util.Map;
 
 public class DetectionPercentage {
 
-public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-    private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
-    private String interconneType;
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+        private String interconneType;
 
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        interconneType = context.getConfiguration().get("interconneType");
-    }
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
+            interconneType = context.getConfiguration().get("interconneType");
+        }
 
-    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        String[] dataArray = value.toString().split(","); // split the data into array
-        // print dataArray
-        if (dataArray.length > 10) { // avoid null pointer exception
-            if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
-                word.set(dataArray[9]); // set 'Detection_' value from index 8
-                context.write(word, one);
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] dataArray = value.toString().split(","); // split the data into array
+            if (dataArray.length > 10) { // avoid null pointer exception
+                if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
+                    word.set(dataArray[9]); // set 'Detection_' value from index 9
+                    context.write(word, one);
+                }
             }
         }
     }
-}
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, Text> {
 
@@ -67,7 +66,7 @@ public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritab
         job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class); // Set output value class to Text
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
