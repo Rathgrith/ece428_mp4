@@ -8,6 +8,7 @@ import (
 	"ece428_mp4/pkg/maple_juice/maple/partition"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"encoding/gob"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -28,6 +29,7 @@ func main() {
 	}
 	flag.StringVar(&regexCondition, "regex", "", "regex condition")
 	flag.Parse()
+	ReturnErrResponse(errors.New(fmt.Sprintf("arg:%s", regexCondition)))
 	RunMaple(&config)
 }
 
