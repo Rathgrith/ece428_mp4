@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -13,9 +13,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class TrafficSignalComposition {
-    public static class TrafficSignalMapper extends Mapper<Object, Text, Text, FloatWritable> {
+    public static class TrafficSignalMapper extends Mapper<Object, Text, Text, Text> {
+        private final Text interconneType = new Text();
         private final Text detectionType = new Text();
-        private final FloatWritable one = new FloatWritable(1);
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] columns = value.toString().split(",");
@@ -25,26 +25,38 @@ public class TrafficSignalComposition {
 
                 // Check if the 'Interconne' type matches the provided parameter 'X'
                 if (interconne.equals(context.getConfiguration().get("interconneType"))) {
+                    interconneType.set(interconne);
                     detectionType.set(detection);
-                    context.write(detectionType, one);
+                    context.write(interconneType, detectionType);
                 }
             }
         }
     }
 
-    public static class TrafficSignalReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
+    public static class TrafficSignalReducer extends Reducer<Text, Text, Text, FloatWritable> {
         private final FloatWritable result = new FloatWritable();
         private float totalCount = 0;
 
-        public void reduce(Text key, Iterable<FloatWritable> values, Context context)
+        public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            float sum = 0;
-            for (FloatWritable val : values) {
-                sum += val.get();
-                totalCount += val.get();
+            Map<String, Integer> detectionCount = new HashMap<>();
+            totalCount = 0;
+
+            // Count the occurrences of each 'Detection_' value
+            for (Text val : values) {
+                String detection = val.toString();
+                detectionCount.put(detection, detectionCount.getOrDefault(detection, 0) + 1);
+                totalCount++;
             }
-            result.set((sum / totalCount) * 100); // Calculate the percentage composition
-            context.write(key, result);
+
+            // Calculate the percentage composition for each 'Detection_' value
+            for (Map.Entry<String, Integer> entry : detectionCount.entrySet()) {
+                String detection = entry.getKey();
+                int count = entry.getValue();
+                float composition = (count / totalCount) * 100;
+                result.set(composition);
+                context.write(new Text(detection), result);
+            }
         }
     }
 
@@ -55,10 +67,9 @@ public class TrafficSignalComposition {
         Job job = Job.getInstance(conf, "Traffic Signal Composition");
         job.setJarByClass(TrafficSignalComposition.class);
         job.setMapperClass(TrafficSignalMapper.class);
-        job.setCombinerClass(TrafficSignalReducer.class);
         job.setReducerClass(TrafficSignalReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(FloatWritable.class);
+        job.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
