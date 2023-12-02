@@ -138,8 +138,8 @@ func main() {
 	logutil.InitDefaultLogger(logrus.DebugLevel)
 	client := SDFSSDK.NewSDFSClient()
 	// inputFilename := "test.csv"
-	mapleExe := "filterMaple.exe"
-	juiceExe := "filterJuice.exe"
+	mapleExe := "filterMaple"
+	juiceExe := "filterJuice"
 
 	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
 	if err != nil {
