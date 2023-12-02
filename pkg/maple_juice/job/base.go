@@ -9,8 +9,18 @@ import (
 	"time"
 )
 
+type TaskStatus int
+
 const (
-	timeout = time.Second * 15
+	Init TaskStatus = iota + 1
+	Running
+	Errored
+	Failed
+)
+
+const (
+	timeout      = time.Second * 15
+	MaxRetryTime = 10
 )
 
 type Manager struct {
@@ -33,13 +43,22 @@ func NewJobManager() *Manager {
 	return &manager
 }
 
-func (m *Manager) SubmitMapleJob(req *idl.ExecuteMapleJobRequest) error {
-	tracker := NewMapleJobTracker(req, m.rpcClientManager, m.fsClient, m)
-	_, err := tracker.ExecuteJob()
+func (m *Manager) SubmitMapleJob(req *idl.ExecuteMapleJobRequest) (*idl.ExecuteMapleJobResponse, error) {
+	tracker := NewMapleJobTracker(context.Background(), req, m.rpcClientManager, m.fsClient, m)
+	resp, err := tracker.ExecuteJob()
 	if err != nil {
-		return err
+		return resp, err
 	}
-	return nil
+	return resp, nil
+}
+
+func (m *Manager) SubmitJuiceJob(req *idl.ExecuteJuiceJobRequest) (*idl.ExecuteJuiceJobResponse, error) {
+	tracker := NewJuiceJobTracker(context.Background(), req, m.rpcClientManager, m.fsClient, m)
+	resp, err := tracker.ExecuteJob()
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 func (m *Manager) Heartbeat(ctx context.Context, request *idl.HeartbeatRequest) (*idl.HeartBeatResponse, error) {

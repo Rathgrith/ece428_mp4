@@ -12,24 +12,17 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-)
-
-type MapleTaskStatus int
-
-const (
-	Init MapleTaskStatus = iota + 1
-	Running
-	Errored
-	Failed
+	"sync"
 )
 
 type MapleTask struct {
 	TaskID          string
 	SplitInfo       *split.Info
 	Request         *idl.RunMapleTaskRequest
-	Status          MapleTaskStatus
+	Status          TaskStatus
 	AttemptCount    int
 	LastAttemptNode string
+	Err             error
 }
 
 type MapleJobTracker struct {
@@ -37,33 +30,39 @@ type MapleJobTracker struct {
 	rpcClientManager *rpc.ClientManager
 	fsClient         *SDFSSDK.SDFSClient
 	jobManager       *Manager
+	ctx              context.Context
 
-	splitsInfo        []*split.Info
-	tasks             map[string]*MapleTask
-	ongoingTasks      chan *MapleTask
-	successResponse   chan *idl.RunMapleTaskResponse
-	errChan           chan error
-	exeLocateHosts    []string
-	tempIntermediates map[string][]string
+	splitsInfo          []*split.Info
+	tasks               map[string]*MapleTask
+	taskQueue           chan *MapleTask
+	retryQueue          chan *MapleTask
+	successResponse     chan *idl.RunMapleTaskResponse
+	errChan             chan error
+	exeLocateHosts      []string
+	tempIntermediates   map[string][]string
+	tempIntermediatesMu sync.RWMutex
 
 	resp *idl.ExecuteMapleJobResponse
 }
 
-func NewMapleJobTracker(req *idl.ExecuteMapleJobRequest, rpcClientManager *rpc.ClientManager,
+func NewMapleJobTracker(ctx context.Context, req *idl.ExecuteMapleJobRequest, rpcClientManager *rpc.ClientManager,
 	fsClient *SDFSSDK.SDFSClient, jobManager *Manager) *MapleJobTracker {
 	tracker := MapleJobTracker{
 		req:              req,
 		rpcClientManager: rpcClientManager,
 		fsClient:         fsClient,
 		jobManager:       jobManager,
+		ctx:              ctx,
 
-		splitsInfo:        nil,
-		tasks:             make(map[string]*MapleTask),
-		ongoingTasks:      nil,
-		successResponse:   nil,
-		errChan:           make(chan error),
-		exeLocateHosts:    nil,
-		tempIntermediates: make(map[string][]string),
+		splitsInfo:          nil,
+		tasks:               make(map[string]*MapleTask),
+		taskQueue:           nil,
+		retryQueue:          nil,
+		successResponse:     nil,
+		errChan:             make(chan error),
+		exeLocateHosts:      nil,
+		tempIntermediates:   make(map[string][]string),
+		tempIntermediatesMu: sync.RWMutex{},
 	}
 
 	return &tracker
@@ -94,10 +93,11 @@ func (t *MapleJobTracker) splitInputFiles() error {
 }
 
 func (t *MapleJobTracker) generateTasks() error {
-	t.ongoingTasks = make(chan *MapleTask, len(t.splitsInfo))
+	t.taskQueue = make(chan *MapleTask, len(t.splitsInfo))
 	t.successResponse = make(chan *idl.RunMapleTaskResponse, len(t.splitsInfo))
+	t.retryQueue = make(chan *MapleTask, len(t.splitsInfo))
 	for idx, splitInfo := range t.splitsInfo {
-		taskID := fmt.Sprintf("task%d", idx+1)
+		taskID := fmt.Sprintf("maple_task%d", idx+1)
 
 		req := idl.RunMapleTaskRequest{
 			ExeName:                    t.req.GetExeName(),
@@ -117,10 +117,10 @@ func (t *MapleJobTracker) generateTasks() error {
 		}
 
 		t.tasks[taskID] = &task
-		t.ongoingTasks <- &task
+		t.taskQueue <- &task
 	}
 
-	fmt.Println("generated tasks:----------")
+	fmt.Println("generated maple tasks:----------")
 	for _, task := range t.tasks {
 		marshaledTask, _ := json.Marshal(task)
 		fmt.Println(string(marshaledTask))
@@ -133,14 +133,24 @@ func (t *MapleJobTracker) dispatchAndMonitor() error {
 	remainTasksCount := len(t.tasks)
 	for {
 		select {
-		case task := <-t.ongoingTasks:
+		case task := <-t.taskQueue:
 			{
-				go t.runTasks(task)
+				go t.runTask(t.ctx, task)
+			}
+		case task := <-t.retryQueue:
+			{
+				if task.AttemptCount < MaxRetryTime {
+					go t.runTask(t.ctx, task)
+				} else {
+					task.Status = Failed
+					err := fmt.Errorf("exceed max retry time, still failed:%w", task.Err)
+					logutil.Logger.Error(err)
+					return err
+				}
 			}
 		case resp := <-t.successResponse:
 			{
-				// response of failed tasks will be processed in runTask func and reschedule it
-				t.processResp(resp)
+				t.processResp(t.ctx, resp)
 				remainTasksCount -= 1
 				if remainTasksCount == 0 {
 					return nil
@@ -155,14 +165,14 @@ func (t *MapleJobTracker) dispatchAndMonitor() error {
 }
 
 func (t *MapleJobTracker) mergeTmpIntermediates() error {
-	for intermediateName, tmps := range t.tempIntermediates {
+	for intermediateName, temp := range t.tempIntermediates {
 		err := t.fsClient.TouchFile(intermediateName)
 		if err != nil {
 			return fmt.Errorf("can not create intermediate:%w", err)
 		}
 		logutil.Logger.Debugf("create intermediate (%s)", intermediateName)
 
-		err = t.fsClient.MergeFiles(intermediateName, tmps, true, false)
+		err = t.fsClient.MergeFiles(intermediateName, temp, true, false)
 		if err != nil {
 			return fmt.Errorf("can not merge tmp intermediates:%w", err)
 		}
@@ -177,8 +187,8 @@ func (t *MapleJobTracker) generateJobResponse() error {
 	}
 
 	resp := idl.ExecuteMapleJobResponse{
-		Code:              idl.StatusCode_Success,
-		IntermediateFiles: intermediates,
+		Code:                  idl.StatusCode_Success,
+		IntermediateFilenames: intermediates,
 	}
 
 	t.resp = &resp
@@ -186,7 +196,7 @@ func (t *MapleJobTracker) generateJobResponse() error {
 	return nil
 }
 
-func (t *MapleJobTracker) runTasks(task *MapleTask) {
+func (t *MapleJobTracker) runTask(ctx context.Context, task *MapleTask) {
 	req := task.Request
 
 	task.AttemptCount += 1
@@ -215,7 +225,9 @@ func (t *MapleJobTracker) runTasks(task *MapleTask) {
 		// err can only be rpc call err,
 		// since when node manager receive request, the run error will be contained in resp
 		// just retry and select another node
-		t.ongoingTasks <- task
+		task.Err = err
+		task.Status = Errored
+		t.retryQueue <- task
 		return
 	}
 
@@ -253,7 +265,7 @@ func (t *MapleJobTracker) selectTargetHost(task *MapleTask) (string, error) {
 		count += 1
 		if count > 2*len(preferredHosts) {
 			available := t.jobManager.GetAvailableHost()
-			if available == nil || len(available) == 0 {
+			if len(available) == 0 {
 				return "", fmt.Errorf("can not get any available node")
 			}
 			selectedHost = available[rand.Intn(len(available))]
@@ -263,7 +275,9 @@ func (t *MapleJobTracker) selectTargetHost(task *MapleTask) (string, error) {
 	return selectedHost, nil
 }
 
-func (t *MapleJobTracker) processResp(resp *idl.RunMapleTaskResponse) {
+func (t *MapleJobTracker) processResp(ctx context.Context, resp *idl.RunMapleTaskResponse) {
+	t.tempIntermediatesMu.Lock()
+	defer t.tempIntermediatesMu.Unlock()
 	for _, tmpIntermediate := range resp.GetTmpIntermediateFiles() {
 		parts := strings.Split(tmpIntermediate, "-")
 		suffix := parts[len(parts)-1]
