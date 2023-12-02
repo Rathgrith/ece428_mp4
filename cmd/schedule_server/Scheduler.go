@@ -130,7 +130,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 	} else {
 		panic("Unknown executable")
 	}
-
+	task.completionSig <- "Task completed successfully, output file: " + task.OutDir
 }
 
 func main() {
