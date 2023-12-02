@@ -8,8 +8,6 @@ import (
 	"ece428_mp4/pkg/maple_juice/maple/partition"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"encoding/gob"
-	"errors"
-	"flag"
 	"fmt"
 	"math/rand"
 	"os"
@@ -27,9 +25,7 @@ func main() {
 		Func:            Maple,
 		PartitionerType: partition.PerKeyPartitionerType,
 	}
-	flag.StringVar(&regexCondition, "regex", "", "regex condition")
-	flag.Parse()
-	ReturnErrResponse(errors.New(fmt.Sprintf("arg:%s", regexCondition)))
+	regexCondition = os.Args[1]
 	RunMaple(&config)
 }
 
