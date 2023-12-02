@@ -50,10 +50,10 @@ func NewJobManager() *Manager {
 	return &manager
 }
 
-func (m *Manager) Serve() {
+func (m *Manager) StartServe() error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", ServeHost))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	server := grpc.NewServer()
@@ -61,10 +61,14 @@ func (m *Manager) Serve() {
 
 	fmt.Println("job Manager start to serve")
 
-	err = server.Serve(lis)
-	if err != nil {
-		panic(err)
-	}
+	go func() {
+		err = server.Serve(lis)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	return nil
 }
 
 func (m *Manager) SubmitMapleJob(req *idl.ExecuteMapleJobRequest) (*idl.ExecuteMapleJobResponse, error) {

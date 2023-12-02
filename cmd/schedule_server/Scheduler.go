@@ -142,7 +142,12 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	sqlServer := &server{taskQueue: taskQueue, jobManager: job.NewJobManager()}
+	jobManager := job.NewJobManager()
+	err = jobManager.StartServe()
+	if err != nil {
+		panic(err)
+	}
+	sqlServer := &server{taskQueue: taskQueue, jobManager: jobManager}
 	idl.RegisterMapleJuiceSchedulerServer(grpcServer, sqlServer)
 
 	// Start the scheduler in a separate goroutine
