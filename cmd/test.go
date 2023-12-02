@@ -57,7 +57,7 @@ func main() {
 	// 	panic(err)
 	// }
 
-	client.GetFileToLocal("output.csv", "output.csv", "./")
+	// client.GetFileToLocal("output.csv", "output.csv", "./")
 
 	// jobManager := job.NewJobManager()
 	// jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
