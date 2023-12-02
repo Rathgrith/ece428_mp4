@@ -59,11 +59,11 @@ func StartRunNodeManager() {
 		client := idl.NewJobManageServiceClient(conn)
 		ticker := time.NewTicker(time.Second * 5)
 		for {
-			<-ticker.C
 			_, err := client.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: selfHost})
 			if err != nil {
 				logutil.Logger.Debugf("cur heartbeat failed:%v", err)
 			}
+			<-ticker.C
 		}
 	}()
 
