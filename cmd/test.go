@@ -33,29 +33,31 @@ func main() {
 	//	panic(err)
 	//}
 
-	inputFilename := "test.csv"
-	inputFilename2 := "Traffic_Signal_Intersections.csv"
-	mapleExe := "filterMaple"
-	juiceExe := "filterJuice"
+	// inputFilename := "test.csv"
+	// inputFilename2 := "Traffic_Signal_Intersections.csv"
+	// mapleExe := "filterMaple"
+	// juiceExe := "filterJuice"
 
-	err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
-	if err != nil {
-		panic(err)
-	}
+	// err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
-	if err != nil {
-		panic(err)
-	}
+	// err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
-	if err != nil {
-		panic(err)
-	}
-	err = client.PutLocalFile(inputFilename2, inputFilename2, "./", true)
-	if err != nil {
-		panic(err)
-	}
+	// err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = client.PutLocalFile(inputFilename2, inputFilename2, "./", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	client.GetFileToLocal("output.csv", "output.csv", "./")
 
 	// jobManager := job.NewJobManager()
 	// jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})

@@ -80,6 +80,9 @@ func executeTask(jobManager *job.Manager, task Task) {
 		}
 		fmt.Printf("Maple response: %+v\n", mapleResp)
 		fmt.Println("Intermediate files:", mapleResp.GetIntermediateFilenames())
+		if len(mapleResp.GetIntermediateFilenames()) == 0 {
+			task.completionSig <- "no lines match the regex"
+		}
 		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 			ExeName:               "filterJuice",
 			IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
@@ -101,7 +104,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{col1},
+			ExeArgs:                    []string{col1, "D1"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
@@ -112,12 +115,15 @@ func executeTask(jobManager *job.Manager, task Task) {
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{col2},
+			ExeArgs:                    []string{col2, "D2"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
 		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
+		if len(intermediateFileNames) == 0 {
+			task.completionSig <- "no lines share the same key"
+		}
 		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 			ExeName:               "joinJuice",
 			IntermediateFilenames: intermediateFileNames,
