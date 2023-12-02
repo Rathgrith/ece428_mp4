@@ -3,25 +3,72 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class InterconneDriver {
+public class DetectionPercentage {
+
+public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
+
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+    private String interconneType;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        interconneType = context.getConfiguration().get("interconneType");
+    }
+
+    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        String[] dataArray = value.toString().split(","); // split the data into array
+        if (dataArray.length > 10) { // avoid null pointer exception
+            if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
+                word.set(dataArray[8]); // set 'Detection_' value from index 8
+                context.write(word, one);
+            }
+        }
+    }
+}
+
+    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, Text> {
+
+        private Map<String, Integer> countMap = new HashMap<>();
+
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            countMap.put(key.toString(), sum);
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            int totalCount = countMap.values().stream().mapToInt(Integer::intValue).sum();
+            for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
+                double percentage = 100.0 * entry.getValue() / totalCount;
+                context.write(new Text(entry.getKey()), new Text(percentage + "%"));
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        conf.set("interconneType", args[0]);
-        conf.setInt("totalCount", Integer.parseInt(args[1]));
+        Configuration conf = new Configuration(); // set interconneType from command line argument
 
-        Job job = Job.getInstance(conf, "Interconne Count");
-        job.setJarByClass(InterconneDriver.class);
-        job.setMapperClass(InterconneMapper.class);
-        job.setCombinerClass(InterconneReducer.class);
-        job.setReducerClass(InterconneReducer.class);
+        Job job = Job.getInstance(conf, "detection percentage");
+        job.setJarByClass(DetectionPercentage.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-
-        FileInputFormat.addInputPath(job, new Path(args[2]));
-        FileOutputFormat.setOutputPath(job, new Path(args[3]));
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
