@@ -29,7 +29,11 @@ func main() {
 
 func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	// Implement your logic here, you can also modify the config
-	v := kv.Value.(string)
+	val, valid := kv.Value.([]byte)
+	if !valid {
+		return nil, fmt.Errorf("can not convert value")
+	}
+	v := string(val)
 	var newKey string
 	// if regexCondition can match v then return v as new key
 	if matched, _ := regexp.MatchString(regexCondition, v); matched {
