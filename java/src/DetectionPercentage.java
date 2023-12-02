@@ -13,27 +13,27 @@ import java.util.Map;
 
 public class DetectionPercentage {
 
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
 
+        private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
         private String interconneType;
-    
+
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             interconneType = context.getConfiguration().get("interconneType");
         }
-    
+
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] dataArray = value.toString().split(","); // split the data into array
             if (dataArray.length > 10) { // avoid null pointer exception
                 if (dataArray[10].trim().equals(interconneType)) { // check interconne type
                     word.set(dataArray[9]); // set 'Detection_' value
-                    context.write(word, new Text("1"));
+                    context.write(word, one);
                 }
             }
         }
     }
-    
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, Text> {
 
@@ -59,18 +59,18 @@ public class DetectionPercentage {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        conf.set("interconneType", args[2]);
+        conf.set("interconneType", args[2]); // set interconneType from command line argument
+
         Job job = Job.getInstance(conf, "detection percentage");
         job.setJarByClass(DetectionPercentage.class);
         job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class); // Ensure this Combiner is compatible
+        job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class); // Corrected output value class
+        job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    
+
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
-    
 }
