@@ -109,7 +109,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		mapleResp, err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "filterMaple.exe",
 			IntermediateFilenamePrefix: task.Prefix,
-			InputFiles:                 []string{task.SrcDir1},
+			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
 			ExeArgs:                    []string{col2},
 		})
