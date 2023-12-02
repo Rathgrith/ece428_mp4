@@ -5,6 +5,9 @@ import (
 	"ece428_mp4/idl"
 	"ece428_mp4/pkg/rpc"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
+	"fmt"
+	"google.golang.org/grpc"
+	"net"
 	"sync"
 	"time"
 )
@@ -16,6 +19,10 @@ const (
 	Running
 	Errored
 	Failed
+)
+
+const (
+	ServeHost = 12301
 )
 
 const (
@@ -41,6 +48,23 @@ func NewJobManager() *Manager {
 	}
 
 	return &manager
+}
+
+func (m *Manager) Serve() {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", ServeHost))
+	if err != nil {
+		panic(err)
+	}
+
+	server := grpc.NewServer()
+	idl.RegisterJobManageServiceServer(server, m)
+
+	fmt.Println("job Manager start to serve")
+
+	err = server.Serve(lis)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (m *Manager) SubmitMapleJob(req *idl.ExecuteMapleJobRequest) (*idl.ExecuteMapleJobResponse, error) {
