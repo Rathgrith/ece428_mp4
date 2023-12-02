@@ -108,7 +108,7 @@ func main() {
 	// query.Operation = "filter"
 	fmt.Printf("Sending query: %+v\n", query)
 	if query.Operation == "filter" {
-		mapleResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
+		filterResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType: "maple",
 			Exe:      "filterMaple.exe",
 			NumJobs:  int32(*numJobs),
@@ -120,20 +120,9 @@ func main() {
 		if err != nil {
 			log.Fatalf("could not enqueue task: %v", err)
 		}
-		fmt.Printf("Server response: %s\n", mapleResp.GetMessage())
-		juiceResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
-			TaskType: "juice",
-			Exe:      "./filterJuice.exe",
-			NumJobs:  int32(*numJobs),
-			Prefix:   *prefix,
-			DestFile: *outDir,
-		})
-		if err != nil {
-			log.Fatalf("could not enqueue task: %v", err)
-		}
-		fmt.Printf("Server response: %s\n", juiceResp.GetMessage())
+		fmt.Printf("Server response: %s\n", filterResp.GetMessage())
 	} else if query.Operation == "join" {
-		joinmResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
+		joinResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType:    "maple",
 			Exe:         "./joinMaple.exe",
 			NumJobs:     int32(*numJobs),
@@ -147,17 +136,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("could not enqueue task: %v", err)
 		}
-		fmt.Printf("Server response: %s\n", joinmResp.GetMessage())
-		joinjResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
-			TaskType: "juice",
-			Exe:      "./joinJuice.exe",
-			NumJobs:  int32(*numJobs),
-			Prefix:   *prefix,
-			DestFile: *outDir,
-		})
-		if err != nil {
-			log.Fatalf("could not enqueue task: %v", err)
-		}
-		fmt.Printf("Server response: %s\n", joinjResp.GetMessage())
+		fmt.Printf("Server response: %s\n", joinResp.GetMessage())
 	}
 }

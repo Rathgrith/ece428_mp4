@@ -67,66 +67,70 @@ type Task struct {
 // executeTask simulates task execution
 func executeTask(jobManager *job.Manager, task Task) {
 	fmt.Printf("Executing task: %+v\n", task)
-	// executeResp := &idl.ExecuteTaskResponse{}
 	if task.Executable == "filterMaple.exe" {
-		err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    task.Executable,
+		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    "filterMaple.exe",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{task.Regex},
+			ExeArgs:                    []string{fmt.Sprintf("-regex %s", task.Regex)},
 		})
-		if err != nil {
+		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
 
-		// } else if task.Executable == "filterJuice.exe" {
-		// 	err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
-		// 		ExeName:                task.Executable,
-		// 		InputIntermediateFiles: []string{task.Prefix},
-		// 		OutPutFilename:         task.OutDir,
-		// 		AttemptId:              "JUICE1_1",
-		// 	})
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
+		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+			ExeName:               "filterJuice.exe",
+			IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
+			NumMaples:             int32(task.NumTasks),
+			OutPutFilename:        task.OutDir,
+			ExeArgs:               nil,
+		})
+		if err != nil || juiceResp.Code != idl.StatusCode_Success {
+			panic(err)
+		}
 	} else if task.Executable == "joinMaple.exe" {
-		err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    task.Executable,
+		intermediateFileNames := make([]string, 0)
+		strCol1 := strconv.Itoa(int(task.JoinColumn1))
+		strCol2 := strconv.Itoa(int(task.JoinColumn2))
+		col1 := fmt.Sprintf("-col %s", strCol1)
+		col2 := fmt.Sprintf("-col %s", strCol2)
+		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    "filterMaple.exe",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{strconv.Itoa(int(task.JoinColumn1)), " D1"},
+			ExeArgs:                    []string{col1},
 		})
-		if err != nil {
+		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
-		err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    task.Executable,
+		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
+		mapleResp, err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+			ExeName:                    "filterMaple.exe",
 			IntermediateFilenamePrefix: task.Prefix,
-			InputFiles:                 []string{task.SrcDir2},
+			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{strconv.Itoa(int(task.JoinColumn2)), " D2"},
+			ExeArgs:                    []string{col2},
 		})
-		if err != nil {
+		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
-		// } else if task.Executable == "joinJuice.exe" {
-		// 	err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
-		// 		ExeName:                task.Executable,
-		// 		InputIntermediateFiles: []string{task.Prefix},
-		// 		OutPutFilename:         task.OutDir,
-		// 		AttemptId:              "JUICE1_1",
-		// 	})
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
-		// }
+		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
+		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+			ExeName:               "joinJuice.exe",
+			IntermediateFilenames: intermediateFileNames,
+			NumMaples:             int32(task.NumTasks),
+			OutPutFilename:        task.OutDir,
+			ExeArgs:               nil,
+		})
+		if err != nil || juiceResp.Code != idl.StatusCode_Success {
+			panic(err)
+		}
+	} else {
+		panic("Unknown executable")
 	}
-	fmt.Printf("Task completed: %+v\n", task)
-	// Signal task completion
-	// set return value to client after completion
-	task.completionSig <- "Task completed successfully with output file: " + task.OutDir
+
 }
 
 func main() {
