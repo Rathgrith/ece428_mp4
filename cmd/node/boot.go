@@ -5,16 +5,38 @@ import (
 	"ece428_mp4/idl"
 	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/node"
+	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"os"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
+	logutil.InitDefaultLogger(logrus.DebugLevel)
+	client := SDFSSDK.NewSDFSClient()
+	inputFilename := "test.csv"
+	mapleExe := "filterMaple.exe"
+	juiceExe := "filterJuice.exe"
+
+	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
 	StartRunNodeManager()
 }
 
