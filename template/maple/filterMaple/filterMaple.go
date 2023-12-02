@@ -26,9 +26,8 @@ func main() {
 		Func:            Maple,
 		PartitionerType: partition.PerKeyPartitionerType,
 	}
-	regex := flag.String("regex", "", "Regex pattern for filter (optional)")
+	flag.StringVar(&regexCondition, "regex", "", "regex condition")
 	flag.Parse()
-	regexCondition = *regex
 	RunMaple(&config)
 }
 
