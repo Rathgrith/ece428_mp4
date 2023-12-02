@@ -71,7 +71,7 @@ func main() {
 	// }
 	// client.GetFileToLocal("output.csv", "output.csv", "./")
 	inter := *interconne_type
-
+	// fmt.Println(inter)
 	jobManager := job.NewJobManager()
 	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
 	mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{

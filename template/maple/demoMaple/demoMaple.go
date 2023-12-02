@@ -10,6 +10,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -35,11 +36,10 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	v := string(val)
 	// Split the CSV line into columns
 	columns := strings.Split(v, ",")
-	if len(columns) < 11 {
+	if len(columns) < 10 {
 		interconneCol := columns[10]
 		detectionCol := columns[9]
-		// check exactly match
-		if interconneCol == interconneType {
+		if matched, _ := regexp.MatchString(interconneCol, interconneType); matched {
 			newKV := maple_juice.KV{
 				Key:   interconneCol,
 				Value: detectionCol,
