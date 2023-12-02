@@ -60,7 +60,10 @@ func StartRunNodeManager() {
 		ticker := time.NewTicker(time.Second * 5)
 		for {
 			<-ticker.C
-			client.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: selfHost})
+			_, err := client.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: selfHost})
+			if err != nil {
+				logutil.Logger.Debugf("cur heartbeat failed:%w", err)
+			}
 		}
 	}()
 
