@@ -5,6 +5,7 @@ import (
 	"ece428_mp4/idl"
 	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/maple_juice/job"
+	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"fmt"
 	"log"
 	"net"
@@ -134,7 +135,23 @@ func executeTask(jobManager *job.Manager, task Task) {
 }
 
 func main() {
-	err := logutil.InitDefaultLogger(logrus.DebugLevel)
+	logutil.InitDefaultLogger(logrus.DebugLevel)
+	client := SDFSSDK.NewSDFSClient()
+	inputFilename := "test.csv"
+	mapleExe := "filterMaple.exe"
+	juiceExe := "filterJuice.exe"
+
+	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
 	if err != nil {
 		panic(err)
 	}
