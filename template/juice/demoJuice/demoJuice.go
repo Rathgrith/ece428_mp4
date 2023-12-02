@@ -23,22 +23,22 @@ func main() {
 func Juice(kvs []*maple_juice.KV) (*maple_juice.KV, error) {
 	detectionCounts := make(map[string]int)
 	total := 0
-
-	// Aggregate counts for each Detection_ value
 	for _, kv := range kvs {
-		detectionValue := kv.Key
-		count, _ := strconv.Atoi(kv.Value.(string))
-		detectionCounts[detectionValue] += count
-		total += count
+		val, valid := kv.Value.([]byte)
+		if !valid {
+			return nil, fmt.Errorf("can not convert value")
+		}
+		v := string(val)
+		detectionCounts[v]++
+		total++
 	}
-
-	// Calculate percentage composition
-	var result string
-	for detection, count := range detectionCounts {
-		percentage := (float64(count) / float64(total)) * 100
-		result += fmt.Sprintf("%s: %.2f%%\n", detection, percentage)
+	for k, v := range detectionCounts {
+		detectionCounts[k] = v * 100 / total
 	}
-
+	result := ""
+	for k, v := range detectionCounts {
+		result += k + ":" + strconv.Itoa(v) + "\n"
+	}
 	return &maple_juice.KV{Key: "Result", Value: result}, nil
 }
 

@@ -39,7 +39,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	detectionCol := columns[9]
 
 	if interconneCol == interconneType {
-		return &maple_juice.KV{Key: detectionCol, Value: "1"}, nil
+		return &maple_juice.KV{Key: kv.Key, Value: detectionCol}, nil
 	}
 
 	return nil, nil // Skip this line if it doesn't match the Interconne type
