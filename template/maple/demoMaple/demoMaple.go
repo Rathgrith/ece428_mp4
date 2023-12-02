@@ -28,9 +28,13 @@ func main() {
 }
 
 func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
-
+	val, valid := kv.Value.([]byte)
+	if !valid {
+		return nil, fmt.Errorf("can not convert value")
+	}
+	v := string(val)
 	// Split the CSV line into columns
-	columns := strings.Split(kv.Value.(string), ",")
+	columns := strings.Split(v, ",")
 	interconneCol := columns[10]
 	detectionCol := columns[9]
 
