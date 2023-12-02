@@ -110,7 +110,7 @@ func main() {
 	if query.Operation == "filter" {
 		mapleResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType: "maple",
-			Exe:      "test_exe",
+			Exe:      "filterMaple.exe",
 			NumJobs:  int32(*numJobs),
 			Prefix:   *prefix,
 			SrcDir1:  *srcDir1,
