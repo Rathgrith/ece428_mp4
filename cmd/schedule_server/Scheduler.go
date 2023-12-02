@@ -68,9 +68,9 @@ type Task struct {
 // executeTask simulates task execution
 func executeTask(jobManager *job.Manager, task Task) {
 	fmt.Printf("Executing task: %+v\n", task)
-	if task.Executable == "filterMaple.exe" {
+	if task.Executable == "filterMaple" {
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "filterMaple.exe",
+			ExeName:                    "filterMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
@@ -81,7 +81,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		}
 
 		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
-			ExeName:               "filterJuice.exe",
+			ExeName:               "filterJuice",
 			IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
 			NumMaples:             int32(task.NumTasks),
 			OutPutFilename:        task.OutDir,
@@ -90,14 +90,14 @@ func executeTask(jobManager *job.Manager, task Task) {
 		if err != nil || juiceResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
-	} else if task.Executable == "joinMaple.exe" {
+	} else if task.Executable == "joinMaple" {
 		intermediateFileNames := make([]string, 0)
 		strCol1 := strconv.Itoa(int(task.JoinColumn1))
 		strCol2 := strconv.Itoa(int(task.JoinColumn2))
 		col1 := fmt.Sprintf("-col %s", strCol1)
 		col2 := fmt.Sprintf("-col %s", strCol2)
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "filterMaple.exe",
+			ExeName:                    "joinMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
@@ -108,7 +108,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		}
 		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
 		mapleResp, err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "filterMaple.exe",
+			ExeName:                    "joinMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
@@ -119,7 +119,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		}
 		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
 		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
-			ExeName:               "joinJuice.exe",
+			ExeName:               "joinJuice",
 			IntermediateFilenames: intermediateFileNames,
 			NumMaples:             int32(task.NumTasks),
 			OutPutFilename:        task.OutDir,
