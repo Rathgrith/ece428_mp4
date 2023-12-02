@@ -67,6 +67,7 @@ type Task struct {
 // executeTask simulates task execution
 func executeTask(jobManager *job.Manager, task Task) {
 	fmt.Printf("Executing task: %+v\n", task)
+	// executeResp := &idl.ExecuteTaskResponse{}
 	if task.Executable == "filterMaple.exe" {
 		err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    task.Executable,
@@ -78,6 +79,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		if err != nil {
 			panic(err)
 		}
+
 		// } else if task.Executable == "filterJuice.exe" {
 		// 	err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 		// 		ExeName:                task.Executable,
@@ -123,6 +125,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 	}
 	fmt.Printf("Task completed: %+v\n", task)
 	// Signal task completion
+	// set return value to client after completion
 	task.completionSig <- "Task completed successfully with output file: " + task.OutDir
 }
 
