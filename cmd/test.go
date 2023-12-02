@@ -7,9 +7,8 @@ import (
 	"ece428_mp4/pkg/maple_juice"
 	"ece428_mp4/pkg/maple_juice/job"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
-	"strconv"
-
 	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 func main() {
@@ -37,9 +36,15 @@ func main() {
 	//}
 
 	inputFilename := "test.csv"
-	exeFile := "filterMaple.exe"
+	mapleExe := "test_maple"
+	juiceExe := "test_juice"
 
-	err := client.PutLocalFile(exeFile, exeFile, "./workspace", true)
+	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
 	if err != nil {
 		panic(err)
 	}
@@ -51,16 +56,28 @@ func main() {
 
 	jobManager := job.NewJobManager()
 	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
-	err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-		ExeName:                    exeFile,
+	mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+		ExeName:                    mapleExe,
 		IntermediateFilenamePrefix: "TEST2",
 		InputFiles:                 []string{inputFilename},
-		NumMaples:                  1,
+		NumMaples:                  3,
 		ExeArgs:                    []string{"-regex test_regex"},
 	})
-	if err != nil {
+	if err != nil || mapleResp.Code != idl.StatusCode_Success {
 		panic(err)
 	}
+
+	juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+		ExeName:               juiceExe,
+		IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
+		NumMaples:             2,
+		OutPutFilename:        "TEST_JUICE",
+		ExeArgs:               nil,
+	})
+	if err != nil || juiceResp.Code != idl.StatusCode_Success {
+		panic(err)
+	}
+
 }
 
 func testJuice(kvs []*maple_juice.KV) (*maple_juice.KV, error) {
