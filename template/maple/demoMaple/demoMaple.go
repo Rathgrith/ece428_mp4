@@ -10,7 +10,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -39,7 +38,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	if len(columns) < 10 {
 		interconneCol := columns[10]
 		detectionCol := columns[9]
-		if matched, _ := regexp.MatchString(interconneCol, interconneType); matched {
+		if interconneCol == interconneType {
 			newKV := maple_juice.KV{
 				Key:   interconneCol,
 				Value: detectionCol,
