@@ -110,7 +110,7 @@ func main() {
 	if query.Operation == "filter" {
 		filterResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType: "maple",
-			Exe:      "filterMaple.exe",
+			Exe:      "filterMaple",
 			NumJobs:  int32(*numJobs),
 			Prefix:   *prefix,
 			SrcDir1:  *srcDir1,
@@ -124,7 +124,7 @@ func main() {
 	} else if query.Operation == "join" {
 		joinResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType:    "maple",
-			Exe:         "./joinMaple.exe",
+			Exe:         "./joinMaple",
 			NumJobs:     int32(*numJobs),
 			SrcDir1:     *srcDir1,
 			SrcDir2:     *srcDir2,

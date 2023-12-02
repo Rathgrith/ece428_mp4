@@ -34,20 +34,20 @@ func main() {
 	//}
 
 	inputFilename := "test.csv"
-	mapleExe := "filterMaple.exe"
-	juiceExe := "filterJuice.exe"
+	// mapleExe := "filterMaple.exe"
+	// juiceExe := "filterJuice.exe"
 
-	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
-	if err != nil {
-		panic(err)
-	}
+	// err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
-	if err != nil {
-		panic(err)
-	}
+	// err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
+	err := client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
 	if err != nil {
 		panic(err)
 	}
