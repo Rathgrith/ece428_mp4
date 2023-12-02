@@ -35,14 +35,16 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	v := string(val)
 	// Split the CSV line into columns
 	columns := strings.Split(v, ",")
-	interconneCol := columns[10]
-	detectionCol := columns[9]
-
-	if interconneCol == interconneType {
-		return &maple_juice.KV{Key: kv.Key, Value: detectionCol}, nil
+	if len(columns) < 11 {
+		interconneCol := columns[10]
+		detectionCol := columns[9]
+		if interconneCol == interconneType {
+			return &maple_juice.KV{Key: interconneCol, Value: detectionCol}, nil
+		}
+	} else {
+		return nil, nil
 	}
 
-	return nil, nil // Skip this line if it doesn't match the Interconne type
 }
 
 func RunMaple(config *maple.WorkerConfig) {
