@@ -100,7 +100,7 @@ func (lrr *LineRecordReader) NextKeyValue() (*maple_juice.KV, error) {
 		// ReadBytes returns err != nil if and only if the returned data does not end in delim.
 		if lrr.readSize+len(line) < lrr.inputSize {
 			err := lrr.readFromInputSplit()
-			if err != nil {
+			if err != nil && err != io.EOF {
 				return nil, fmt.Errorf("pad last line: read from input split failed:%w", err)
 			}
 		}
