@@ -13,27 +13,27 @@ import java.util.Map;
 
 public class DetectionPercentage {
 
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
 
-        private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
         private String interconneType;
-
+    
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             interconneType = context.getConfiguration().get("interconneType");
         }
-
+    
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] dataArray = value.toString().split(","); // split the data into array
             if (dataArray.length > 10) { // avoid null pointer exception
                 if (dataArray[10].trim().equals(interconneType)) { // check interconne type
                     word.set(dataArray[9]); // set 'Detection_' value
-                    context.write(word, one);
+                    context.write(word, new Text("1"));
                 }
             }
         }
     }
+    
 
     public static class IntSumReducer extends Reducer<Text, IntWritable, Text, Text> {
 
