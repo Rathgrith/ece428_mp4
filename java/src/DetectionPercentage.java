@@ -29,6 +29,10 @@ public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritab
         // print dataArray
         for (String s : dataArray) {
             System.out.println(s);
+            // if index of s is 10, print interconneType
+            if (s.equals(interconneType)) {
+                System.out.println(interconneType);
+            }
         }
         if (dataArray.length > 10) { // avoid null pointer exception
             if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
