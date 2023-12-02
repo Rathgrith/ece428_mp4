@@ -19,9 +19,9 @@ public class TrafficSignalComposition {
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] columns = value.toString().split(",");
-            if (columns.length >= 2) {
-                String interconne = columns[0].trim();
-                String detection = columns[1].trim();
+            if (columns.length > 10) {
+                String interconne = columns[10].trim();
+                String detection = columns[9].trim();
 
                 // Check if the 'Interconne' type matches the provided parameter 'X'
                 if (interconne.equals(context.getConfiguration().get("interconneType"))) {
