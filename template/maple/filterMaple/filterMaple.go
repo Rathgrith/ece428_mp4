@@ -8,6 +8,7 @@ import (
 	"ece428_mp4/pkg/maple_juice/maple/partition"
 	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"encoding/gob"
+	"flag"
 	"fmt"
 	"math/rand"
 	"os"
@@ -25,7 +26,9 @@ func main() {
 		Func:            Maple,
 		PartitionerType: partition.PerKeyPartitionerType,
 	}
-	regexCondition = os.Args[1]
+	regex := flag.String("regex", "", "Regex pattern for filter (optional)")
+	flag.Parse()
+	regexCondition = *regex
 	RunMaple(&config)
 }
 
@@ -44,6 +47,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 		idx := rand.Intn(4)
 		newKey = strconv.Itoa(idx)
 	} else {
+
 		return nil, nil
 	}
 	// else skip this key-value pair
