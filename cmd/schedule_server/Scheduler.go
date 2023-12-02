@@ -73,7 +73,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{fmt.Sprintf("-regex %s", task.Regex)},
+			ExeArgs:                    []string{task.Regex},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)

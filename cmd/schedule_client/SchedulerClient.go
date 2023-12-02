@@ -23,7 +23,7 @@ type SQLQuery struct {
 }
 
 func parseSQLQuery(sql string) (SQLQuery, error) {
-	parts := strings.Fields(strings.ToLower(sql))
+	parts := strings.Fields(sql)
 	// fmt.Println(parts[3])
 	// fmt.Println(parts[5])
 	if len(parts) < 6 {
@@ -31,12 +31,12 @@ func parseSQLQuery(sql string) (SQLQuery, error) {
 	}
 
 	query := SQLQuery{}
-	if parts[2] == "from" && parts[4] == "where" {
+	if strings.ToLower(parts[2]) == "from" && strings.ToLower(parts[4]) == "where" {
 		// Filter operation
 		query.Operation = "filter"
 		query.Datasets = []string{parts[3]}
 		query.Condition = strings.Join(parts[5:], " ")
-	} else if len(parts) >= 7 && strings.Contains(parts[3], ",") && parts[5] == "where" {
+	} else if len(parts) >= 7 && strings.Contains(parts[3], ",") && strings.ToLower(parts[5]) == "where" {
 		// Join operation
 		query.Operation = "join"
 		dataset1 := strings.Split(parts[3], ",")[0]
