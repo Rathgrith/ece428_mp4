@@ -34,7 +34,12 @@ func main() {
 
 func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	// v is the actual line of the csv file
-	vList := strings.Split(kv.Value.(string), ",")
+	val, valid := kv.Value.([]byte)
+	if !valid {
+		return nil, fmt.Errorf("can not convert value")
+	}
+	v := string(val)
+	vList := strings.Split(v, ",")
 	idx, err := strconv.Atoi(col)
 	if err != nil {
 		return nil, err

@@ -5,7 +5,6 @@ import (
 	"ece428_mp4/idl"
 	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/maple_juice/job"
-	SDFSSDK "ece428_mp4/sdfs/sdk"
 	"fmt"
 	"log"
 	"net"
@@ -97,7 +96,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		col1 := fmt.Sprintf("-col %s", strCol1)
 		col2 := fmt.Sprintf("-col %s", strCol2)
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "joinMaple",
+			ExeName:                    "filterMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
@@ -108,7 +107,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		}
 		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
 		mapleResp, err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "joinMaple",
+			ExeName:                    "filterMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
@@ -135,26 +134,10 @@ func executeTask(jobManager *job.Manager, task Task) {
 }
 
 func main() {
-	logutil.InitDefaultLogger(logrus.DebugLevel)
-	client := SDFSSDK.NewSDFSClient()
-	// inputFilename := "test.csv"
-	mapleExe := "filterMaple"
-	juiceExe := "filterJuice"
-
-	err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
+	err := logutil.InitDefaultLogger(logrus.DebugLevel)
 	if err != nil {
 		panic(err)
 	}
-
-	err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
-	if err != nil {
-		panic(err)
-	}
-
-	// err = client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
 	taskQueue := make(chan Task, 100) // Task queue with a buffer of 100 tasks
 
 	// Create and start the gRPC server

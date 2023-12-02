@@ -34,47 +34,47 @@ func main() {
 	//}
 
 	inputFilename := "test.csv"
-	// mapleExe := "filterMaple.exe"
-	// juiceExe := "filterJuice.exe"
+	mapleExe := "filterMaple"
+	juiceExe := "filterJuice"
 
-	// err := client.PutLocalFile(mapleExe, mapleExe, "./workspace", true)
-	// if err != nil {
+	err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	if err != nil {
+		panic(err)
+	}
+
+	// jobManager := job.NewJobManager()
+	// jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
+	// mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
+	// 	ExeName:                    mapleExe,
+	// 	IntermediateFilenamePrefix: "TEST2",
+	// 	InputFiles:                 []string{inputFilename},
+	// 	NumMaples:                  3,
+	// 	ExeArgs:                    []string{"-regex test_regex"},
+	// })
+	// if err != nil || mapleResp.Code != idl.StatusCode_Success {
 	// 	panic(err)
 	// }
 
-	// err = client.PutLocalFile(juiceExe, juiceExe, "./workspace", true)
-	// if err != nil {
+	// juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
+	// 	ExeName:               juiceExe,
+	// 	IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
+	// 	NumMaples:             2,
+	// 	OutPutFilename:        "TEST_JUICE",
+	// 	ExeArgs:               nil,
+	// })
+	// if err != nil || juiceResp.Code != idl.StatusCode_Success {
 	// 	panic(err)
 	// }
-
-	//err := client.PutLocalFile(inputFilename, inputFilename, "./workspace", true)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	//jobManager := job.NewJobManager()
-	//jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
-	//mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-	//	ExeName:                    mapleExe,
-	//	IntermediateFilenamePrefix: "TEST2",
-	//	InputFiles:                 []string{inputFilename},
-	//	NumMaples:                  3,
-	//	ExeArgs:                    []string{"-regex test_regex"},
-	//})
-	//if err != nil || mapleResp.Code != idl.StatusCode_Success {
-	//	panic(err)
-	//}
-	//
-	//juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
-	//	ExeName:               juiceExe,
-	//	IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
-	//	NumMaples:             2,
-	//	OutPutFilename:        "TEST_JUICE",
-	//	ExeArgs:               nil,
-	//})
-	//if err != nil || juiceResp.Code != idl.StatusCode_Success {
-	//	panic(err)
-	//}
 
 }
 
