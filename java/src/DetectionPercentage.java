@@ -26,9 +26,9 @@ public class DetectionPercentage {
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] dataArray = value.toString().split(","); // split the data into array
-            if (dataArray.length > 1) { // avoid null pointer exception
-                if (dataArray[0].trim().equals(interconneType)) { // check interconne type
-                    word.set(dataArray[1]); // set 'Detection_' value
+            if (dataArray.length > 10) { // avoid null pointer exception
+                if (dataArray[10].trim().equals(interconneType)) { // check interconne type
+                    word.set(dataArray[9]); // set 'Detection_' value
                     context.write(word, one);
                 }
             }
