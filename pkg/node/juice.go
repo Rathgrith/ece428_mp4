@@ -49,6 +49,8 @@ func (h *RunJuiceTaskHandler) Handle() (*idl.RunJuiceTaskResponse, error) {
 		}
 	}
 
+	logutil.Logger.Debugf("execute juice task (%s) sucess, generate output:%v", h.req.GetAttemptId(), h.resp.GetTmpOutputFilename())
+
 	return h.resp, nil
 }
 

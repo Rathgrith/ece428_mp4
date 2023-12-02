@@ -49,6 +49,8 @@ func (h *RunMapleTaskHandler) Handle() (*idl.RunMapleTaskResponse, error) {
 		}
 	}
 
+	logutil.Logger.Debugf("execute maple task (%s) sucess, generate intermediates:%v", h.req.GetAttemptId(), h.resp.GetTmpIntermediateFiles())
+
 	return h.resp, nil
 }
 
