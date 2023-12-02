@@ -124,7 +124,7 @@ func main() {
 	} else if query.Operation == "join" {
 		joinResp, err := client.EnqueueTask(ctx, &idl.TaskRequest{
 			TaskType:    "maple",
-			Exe:         "./joinMaple",
+			Exe:         "joinMaple",
 			NumJobs:     int32(*numJobs),
 			SrcDir1:     *srcDir1,
 			SrcDir2:     *srcDir2,
