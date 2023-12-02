@@ -62,7 +62,7 @@ func StartRunNodeManager() {
 			<-ticker.C
 			_, err := client.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: selfHost})
 			if err != nil {
-				logutil.Logger.Debugf("cur heartbeat failed:%w", err)
+				logutil.Logger.Debugf("cur heartbeat failed:%v", err)
 			}
 		}
 	}()
