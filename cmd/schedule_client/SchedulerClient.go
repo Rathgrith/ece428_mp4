@@ -52,7 +52,7 @@ func parseSQLQuery(sql string) (SQLQuery, error) {
 
 func main() {
 	serverAddr := flag.String("server_addr", "fa23-cs425-4801.cs.illinois.edu:50051", "The server address in the format of host:port")
-	numJobs := flag.Int("numJobs", 1, "Number of maple tasks")
+	numJobs := flag.Int("numJobs", 4, "Number of maple tasks")
 	prefix := flag.String("prefix", "inter", "Prefix for intermediate files")
 	srcDir1 := flag.String("src_dir1", "./test1.csv", "Source directory 1 for maple/juice task")
 	srcDir2 := flag.String("src_dir2", "", "Source directory 2 for juice task (optional)")
