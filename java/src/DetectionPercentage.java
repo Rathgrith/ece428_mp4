@@ -26,6 +26,10 @@ public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritab
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
         String[] dataArray = value.toString().split(","); // split the data into array
+        // print dataArray[10]
+        System.out.println(dataArray[10]);
+        System.out.println(interconneType);
+        System.out.println(dataArray[9]);
         if (dataArray.length > 10) { // avoid null pointer exception
             if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
                 word.set(dataArray[9]); // set 'Detection_' value from index 8
