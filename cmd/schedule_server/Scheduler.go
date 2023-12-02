@@ -78,7 +78,8 @@ func executeTask(jobManager *job.Manager, task Task) {
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
 		}
-
+		fmt.Printf("Maple response: %+v\n", mapleResp)
+		fmt.Println("Intermediate files:", mapleResp.GetIntermediateFilenames())
 		juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 			ExeName:               "filterJuice",
 			IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
