@@ -59,18 +59,18 @@ public class DetectionPercentage {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        conf.set("interconneType", args[2]); // set interconneType from command line argument
-
+        conf.set("interconneType", args[2]);
         Job job = Job.getInstance(conf, "detection percentage");
         job.setJarByClass(DetectionPercentage.class);
         job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
+        job.setCombinerClass(IntSumReducer.class); // Ensure this Combiner is compatible
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class); // Corrected output value class
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
+    
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
+    
 }
