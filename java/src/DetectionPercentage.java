@@ -28,7 +28,7 @@ public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritab
         String[] dataArray = value.toString().split(","); // split the data into array
         if (dataArray.length > 10) { // avoid null pointer exception
             if (dataArray[10].trim().equals(interconneType)) { // check interconne type at index 10
-                word.set(dataArray[8]); // set 'Detection_' value from index 8
+                word.set(dataArray[9]); // set 'Detection_' value from index 8
                 context.write(word, one);
             }
         }
@@ -58,8 +58,8 @@ public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritab
     }
 
     public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration(); // set interconneType from command line argument
-
+        Configuration conf = new Configuration();
+        conf.set("interconneType", args[2]);
         Job job = Job.getInstance(conf, "detection percentage");
         job.setJarByClass(DetectionPercentage.class);
         job.setMapperClass(TokenizerMapper.class);
