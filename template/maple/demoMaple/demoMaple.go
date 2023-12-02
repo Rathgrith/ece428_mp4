@@ -38,11 +38,14 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	if len(columns) < 11 {
 		interconneCol := columns[10]
 		detectionCol := columns[9]
+		// check exactly match
 		if interconneCol == interconneType {
-			return &maple_juice.KV{Key: interconneCol, Value: detectionCol}, nil
+			newKV := maple_juice.KV{
+				Key:   interconneCol,
+				Value: detectionCol,
+			}
+			return &newKV, nil
 		}
-	} else {
-		return nil, nil
 	}
 	return nil, nil
 }

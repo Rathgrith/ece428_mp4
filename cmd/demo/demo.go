@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"ece428_mp4/idl"
+	"ece428_mp4/pkg/logutil"
 	"ece428_mp4/pkg/maple_juice/job"
 	"flag"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	interconne_type := flag.String("inter", "None", "interconnection type")
 	flag.Parse()
-	// logutil.InitDefaultLogger(logrus.DebugLevel)
+	logutil.InitDefaultLogger(logrus.DebugLevel)
 	// client := SDFSSDK.NewSDFSClient()
 
 	// //err := client.PutLocalFile("test_juice", "test_juice", "./workspace", true)
@@ -70,7 +73,7 @@ func main() {
 	inter := *interconne_type
 
 	jobManager := job.NewJobManager()
-	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4801.cs.illinois.edu"})
+	jobManager.Heartbeat(context.Background(), &idl.HeartbeatRequest{Host: "fa23-cs425-4805.cs.illinois.edu"})
 	mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 		ExeName:                    "demoMaple",
 		IntermediateFilenamePrefix: "demo",
@@ -82,7 +85,7 @@ func main() {
 		panic(err)
 	}
 	if len(mapleResp.GetIntermediateFilenames()) == 0 {
-		panic("no lines match the regex")
+		logutil.Logger.Debugf("no lines match the regex")
 	}
 	juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 		ExeName:               "demoJuice",
@@ -92,7 +95,7 @@ func main() {
 		ExeArgs:               nil,
 	})
 	if err != nil || juiceResp.Code != idl.StatusCode_Success {
-		panic(err)
+		logutil.Logger.Debugf("err:%v", err)
 	}
 
 }
