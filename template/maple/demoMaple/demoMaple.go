@@ -44,7 +44,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	} else {
 		return nil, nil
 	}
-
+	return nil, nil
 }
 
 func RunMaple(config *maple.WorkerConfig) {
