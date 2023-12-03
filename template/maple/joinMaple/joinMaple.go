@@ -49,6 +49,9 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	}
 	joinKey := vList[idx]
 	joinValue := dataset + "|" + kv.Value.(string)
+	if joinKey == "" {
+		return nil, nil
+	}
 	newKV := maple_juice.KV{
 		Key:   joinKey,
 		Value: joinValue,
