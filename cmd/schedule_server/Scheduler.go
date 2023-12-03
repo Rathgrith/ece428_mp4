@@ -7,7 +7,6 @@ import (
 	"ece428_mp4/pkg/maple_juice/job"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"strconv"
 
@@ -18,7 +17,7 @@ import (
 
 type server struct {
 	idl.UnimplementedMapleJuiceSchedulerServer
-	taskQueue  chan *Task // Channel used as a FIFO queue
+	taskQueue  chan Task // Channel used as a FIFO queue
 	jobManager *job.Manager
 }
 
@@ -27,7 +26,7 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 	fmt.Printf("Task queue length: %d\n", len(s.taskQueue))
 	// Create a channel for task completion signal
 	completion := make(chan string, 1)
-	task := &Task{
+	task := Task{
 		Type:          req.TaskType,
 		Executable:    req.Exe,
 		NumTasks:      int(req.NumJobs),
@@ -40,16 +39,14 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 		OutDir:        req.DestFile,
 		completionSig: completion,
 	}
-	fmt.Printf("Enqueuing task: %+v\n", task)
+	fmt.Printf("Task: %+v\n", task)
+	// Enqueue the task
 	s.taskQueue <- task
+	result := <-completion
+	close(completion)
 
-	// Wait for the task to complete or context to be done
-	select {
-	case result := <-completion:
-		return &idl.TaskResponse{Message: result}, nil
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	}
+	return &idl.TaskResponse{Message: result}, nil
+	// return &idl.TaskResponse{Message: "Task enqueued successfully"}, nil
 }
 
 // Task represents a MapleJuice task
@@ -68,11 +65,8 @@ type Task struct {
 }
 
 // executeTask simulates task execution
-func executeTask(jobManager *job.Manager, task *Task) {
+func executeTask(jobManager *job.Manager, task Task) {
 	fmt.Printf("Executing task: %+v\n", task)
-	// generate a random nonce for intermediate file names
-	nonce := rand.Intn(1000000)
-	task.Prefix = fmt.Sprintf("%s_%d", task.Prefix, nonce)
 	if task.Executable == "filterMaple" {
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "filterMaple",
@@ -103,12 +97,14 @@ func executeTask(jobManager *job.Manager, task *Task) {
 		intermediateFileNames := make([]string, 0)
 		strCol1 := strconv.Itoa(int(task.JoinColumn1))
 		strCol2 := strconv.Itoa(int(task.JoinColumn2))
+		col1 := fmt.Sprintf("%s", strCol1)
+		col2 := fmt.Sprintf("%s", strCol2)
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "joinMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{strCol1, "D1"},
+			ExeArgs:                    []string{col1, "D1"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
@@ -119,7 +115,7 @@ func executeTask(jobManager *job.Manager, task *Task) {
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{strCol2, "D2"},
+			ExeArgs:                    []string{col2, "D2"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
@@ -142,7 +138,6 @@ func executeTask(jobManager *job.Manager, task *Task) {
 		panic("Unknown executable")
 	}
 	task.completionSig <- "Task completed successfully, output file: " + task.OutDir
-	close(task.completionSig)
 }
 
 func main() {
@@ -150,7 +145,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	taskQueue := make(chan *Task, 100) // Task queue with a buffer of 100 tasks
+	taskQueue := make(chan Task, 100) // Task queue with a buffer of 100 tasks
 
 	// Create and start the gRPC server
 	lis, err := net.Listen("tcp", ":50051")
