@@ -38,22 +38,22 @@ func main() {
 	// )
 	inputFilename := "test.csv"
 	inputFilename2 := "Traffic_Signal_Intersections.csv"
-	// mapleExe := "filterMaple"
-	// juiceExe := "filterJuice"
+	mapleExe := "joinMaple"
+	juiceExe := "joinJuice"
 	mapleExe1 := "demoMaple"
 	juiceExe1 := "demoJuice"
 
-	// err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
 
-	// err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
 
-	err := client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
 	if err != nil {
 		panic(err)
 	}
