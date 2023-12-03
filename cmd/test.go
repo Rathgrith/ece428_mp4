@@ -42,30 +42,40 @@ func main() {
 	juiceExe := "joinJuice"
 	mapleExe1 := "demoMaple"
 	juiceExe1 := "demoJuice"
+	mapleExe2 := "filterMaple"
+	juiceExe2 := "filterJuice"
 
-	err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
-	if err != nil {
-		panic(err)
-	}
-
-	err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
+	err := client.PutLocalFile(mapleExe, mapleExe, "./", false)
 	if err != nil {
 		panic(err)
 	}
 
-	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	err = client.PutLocalFile(juiceExe, juiceExe, "./", false)
 	if err != nil {
 		panic(err)
 	}
-	err = client.PutLocalFile(inputFilename2, inputFilename2, "./", true)
+
+	err = client.PutLocalFile(inputFilename, inputFilename, "./", false)
 	if err != nil {
 		panic(err)
 	}
-	err = client.PutLocalFile(mapleExe1, mapleExe1, "./", true)
+	err = client.PutLocalFile(inputFilename2, inputFilename2, "./", false)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(mapleExe1, mapleExe1, "./", false)
 	if err != nil {
 		panic(err)
 	}
 	err = client.PutLocalFile(juiceExe1, juiceExe1, "./", true)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(mapleExe2, mapleExe2, "./", false)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(juiceExe2, juiceExe2, "./", true)
 	if err != nil {
 		panic(err)
 	}
