@@ -53,7 +53,7 @@ func main() {
 	// 	panic(err)
 	// }
 
-	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	err: = client.PutLocalFile(inputFilename, inputFilename, "./", true)
 	if err != nil {
 		panic(err)
 	}
