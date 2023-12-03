@@ -67,7 +67,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = client.PutLocalFile(juiceExe1, juiceExe1, "./", true)
+	err = client.PutLocalFile(juiceExe1, juiceExe1, "./", false)
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +75,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = client.PutLocalFile(juiceExe2, juiceExe2, "./", true)
+	err = client.PutLocalFile(juiceExe2, juiceExe2, "./", false)
 	if err != nil {
 		panic(err)
 	}
