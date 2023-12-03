@@ -17,7 +17,7 @@ import (
 
 type server struct {
 	idl.UnimplementedMapleJuiceSchedulerServer
-	taskQueue  chan Task // Channel used as a FIFO queue
+	taskQueue  chan *Task // Channel used as a FIFO queue
 	jobManager *job.Manager
 }
 
@@ -40,7 +40,7 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 		completionSig: completion,
 	}
 	fmt.Printf("Enqueuing task: %+v\n", task)
-	s.taskQueue <- task
+	s.taskQueue <- &task
 
 	// Wait for the task to complete or context to be done
 	select {
@@ -146,7 +146,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	taskQueue := make(chan Task, 100) // Task queue with a buffer of 100 tasks
+	taskQueue := make(chan *Task, 100) // Task queue with a buffer of 100 tasks
 
 	// Create and start the gRPC server
 	lis, err := net.Listen("tcp", ":50051")
@@ -165,7 +165,7 @@ func main() {
 	// Start the scheduler in a separate goroutine
 	go func() {
 		for task := range taskQueue {
-			executeTask(sqlServer.jobManager, task)
+			executeTask(sqlServer.jobManager, *task)
 		}
 	}()
 
