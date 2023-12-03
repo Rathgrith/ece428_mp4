@@ -42,7 +42,9 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 	fmt.Printf("Task: %+v\n", task)
 	// Enqueue the task
 	s.taskQueue <- task
+	fmt.Println("task done")
 	result := <-completion
+	fmt.Printf("resp recieved")
 	close(completion)
 
 	return &idl.TaskResponse{Message: result}, nil
@@ -164,6 +166,7 @@ func main() {
 	// Start the scheduler in a separate goroutine
 	go func() {
 		for task := range taskQueue {
+			fmt.Printf("-------------star to execute task------------")
 			executeTask(sqlServer.jobManager, task)
 		}
 	}()

@@ -112,6 +112,7 @@ func (m *Manager) GetAvailableHost() []string {
 
 func (m *Manager) NodeAlive(host string) bool {
 	m.mu.RLock()
+	defer m.mu.RUnlock()
 	if t, exist := m.availableNodeHosts[host]; !exist {
 		return false
 	} else {

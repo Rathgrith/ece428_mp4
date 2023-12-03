@@ -59,7 +59,7 @@ func NewMapleJobTracker(ctx context.Context, req *idl.ExecuteMapleJobRequest, rp
 		taskQueue:           nil,
 		retryQueue:          nil,
 		successResponse:     nil,
-		errChan:             make(chan error),
+		errChan:             make(chan error, 10),
 		exeLocateHosts:      nil,
 		tempIntermediates:   make(map[string][]string),
 		tempIntermediatesMu: sync.RWMutex{},
@@ -69,6 +69,7 @@ func NewMapleJobTracker(ctx context.Context, req *idl.ExecuteMapleJobRequest, rp
 }
 
 func (t *MapleJobTracker) ExecuteJob() (*idl.ExecuteMapleJobResponse, error) {
+	logutil.Logger.Debugf("start to execute job, req:%v", t.req)
 	for _, handleFUnc := range []func() error{
 		t.splitInputFiles, t.generateTasks, t.dispatchAndMonitor, t.mergeTmpIntermediates, t.generateJobResponse,
 	} {
@@ -130,6 +131,7 @@ func (t *MapleJobTracker) generateTasks() error {
 }
 
 func (t *MapleJobTracker) dispatchAndMonitor() error {
+	logutil.Logger.Debugf("start to dispatch task for job")
 	remainTasksCount := len(t.tasks)
 	for {
 		select {
@@ -197,6 +199,7 @@ func (t *MapleJobTracker) generateJobResponse() error {
 }
 
 func (t *MapleJobTracker) runTask(ctx context.Context, task *MapleTask) {
+	logutil.Logger.Debugf("start to run task (%s) with (%d) attempt", task.TaskID, task.AttemptCount)
 	req := task.Request
 
 	task.AttemptCount += 1
@@ -206,7 +209,9 @@ func (t *MapleJobTracker) runTask(ctx context.Context, task *MapleTask) {
 	dispatchHost, err := t.selectTargetHost(task)
 	if err != nil {
 		// job tracker internal error, should not retry
-		t.errChan <- fmt.Errorf("can not select host for task (%s):%w", task.TaskID, err)
+		retErr := fmt.Errorf("can not select host for task (%s):%w", task.TaskID, err)
+		logutil.Logger.Error(retErr)
+		t.errChan <- retErr
 		return
 	}
 	task.LastAttemptNode = dispatchHost
@@ -244,7 +249,7 @@ func (t *MapleJobTracker) selectTargetHost(task *MapleTask) (string, error) {
 	if t.exeLocateHosts == nil {
 		hosts, err := t.fsClient.GetFileLocationHosts(task.Request.GetExeName())
 		if err != nil {
-
+			return "", fmt.Errorf("get file location failed:%w", err)
 		} else {
 			t.exeLocateHosts = hosts
 		}

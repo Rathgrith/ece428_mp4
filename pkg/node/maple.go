@@ -36,6 +36,7 @@ func NewRunMapleTaskHandler(ctx context.Context, request *idl.RunMapleTaskReques
 }
 
 func (h *RunMapleTaskHandler) Handle() (*idl.RunMapleTaskResponse, error) {
+	logutil.Logger.Debugf("start run maple task attempt:%s", h.req.GetAttemptId())
 	for _, handleFUnc := range []func() error{
 		h.loadExeFile, h.runExeFile, h.processResp,
 	} {
@@ -62,10 +63,12 @@ func (h *RunMapleTaskHandler) loadExeFile() error {
 	if err != nil {
 		return fmt.Errorf("load exe file failed:%w", err)
 	}
+	logutil.Logger.Debugf("load exe file (%s) sueccess", exeName)
 	return nil
 }
 
 func (h *RunMapleTaskHandler) runExeFile() error {
+	logutil.Logger.Debugf("start to run exe file (%s)", h.req.GetExeName())
 	exeCmd := exec.Command("./"+h.req.GetExeName(), h.req.GetExeArgs()...)
 	exeCmd.Dir = h.exeStorePath
 
@@ -93,6 +96,15 @@ func (h *RunMapleTaskHandler) runExeFile() error {
 	}
 
 	h.resp = &resp
+
+	err = exeStdin.Close()
+	if err != nil {
+		return fmt.Errorf("close exe failed:%w", err)
+	}
+	err = exeCmd.Wait()
+	if err != nil {
+		return fmt.Errorf("wait exe cmd finish failed:%w", err)
+	}
 
 	return nil
 }
