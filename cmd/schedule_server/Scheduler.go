@@ -104,7 +104,7 @@ func executeTask(jobManager *job.Manager, task *Task) {
 		strCol1 := strconv.Itoa(int(task.JoinColumn1))
 		strCol2 := strconv.Itoa(int(task.JoinColumn2))
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "filterMaple",
+			ExeName:                    "joinMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
@@ -115,7 +115,7 @@ func executeTask(jobManager *job.Manager, task *Task) {
 		}
 		intermediateFileNames = append(intermediateFileNames, mapleResp.GetIntermediateFilenames()...)
 		mapleResp, err = jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
-			ExeName:                    "filterMaple",
+			ExeName:                    "joinMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
