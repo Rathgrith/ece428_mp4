@@ -38,8 +38,8 @@ func main() {
 	// )
 	inputFilename := "test.csv"
 	inputFilename2 := "Traffic_Signal_Intersections.csv"
-	mapleExe := "joinMaple"
-	juiceExe := "joinJuice"
+	mapleExe := "filterMaple"
+	juiceExe := "filterJuice"
 	mapleExe1 := "demoMaple"
 	juiceExe1 := "demoJuice"
 
