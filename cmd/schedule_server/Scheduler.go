@@ -72,7 +72,7 @@ func executeTask(jobManager *job.Manager, task *Task) {
 	fmt.Printf("Executing task: %+v\n", task)
 	// generate a random nonce for intermediate file names
 	nonce := rand.Intn(1000000)
-	task.Prefix = fmt.Sprintf("%s%d", task.Prefix, nonce)
+	task.Prefix = fmt.Sprintf("%s_%d", task.Prefix, nonce)
 	if task.Executable == "filterMaple" {
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "filterMaple",

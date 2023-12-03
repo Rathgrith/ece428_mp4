@@ -32,7 +32,10 @@ func main() {
 	//if err != nil {
 	//	panic(err)
 	//}
+	// worker := maple.NewTaskWorker(
+	// 	[]string{"test.csv"},
 
+	// )
 	inputFilename := "test.csv"
 	inputFilename2 := "Traffic_Signal_Intersections.csv"
 	mapleExe := "joinMaple"
