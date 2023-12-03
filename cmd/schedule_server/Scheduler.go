@@ -39,14 +39,16 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 		OutDir:        req.DestFile,
 		completionSig: completion,
 	}
-	fmt.Printf("Task: %+v\n", task)
-	// Enqueue the task
+	fmt.Printf("Enqueuing task: %+v\n", task)
 	s.taskQueue <- task
-	result := <-completion
-	close(completion)
 
-	return &idl.TaskResponse{Message: result}, nil
-	// return &idl.TaskResponse{Message: "Task enqueued successfully"}, nil
+	// Wait for the task to complete or context to be done
+	select {
+	case result := <-completion:
+		return &idl.TaskResponse{Message: result}, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 }
 
 // Task represents a MapleJuice task
@@ -138,6 +140,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 		panic("Unknown executable")
 	}
 	task.completionSig <- "Task completed successfully, output file: " + task.OutDir
+	close(task.completionSig)
 }
 
 func main() {
