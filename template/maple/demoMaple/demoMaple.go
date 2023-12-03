@@ -35,7 +35,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 	v := string(val)
 	// Split the CSV line into columns
 	columns := strings.Split(v, ",")
-	if len(columns) < 10 {
+	if len(columns) > 10 {
 		interconneCol := columns[10]
 		detectionCol := columns[9]
 		if interconneCol == interconneType {
