@@ -44,7 +44,6 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 		idx := rand.Intn(4)
 		newKey = strconv.Itoa(idx)
 	} else {
-
 		return nil, nil
 	}
 	// else skip this key-value pair

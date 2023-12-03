@@ -24,11 +24,11 @@ func Juice(kvs []*maple_juice.KV) (*maple_juice.KV, error) {
 	detectionCounts := make(map[string]int)
 	total := 0
 	for _, kv := range kvs {
-		val, valid := kv.Value.([]byte)
+		val, valid := kv.Value.(string)
 		if !valid {
 			return nil, fmt.Errorf("can not convert value")
 		}
-		v := string(val)
+		v := val
 		detectionCounts[v]++
 		total++
 	}

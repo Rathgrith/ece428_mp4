@@ -87,10 +87,11 @@ func main() {
 	if len(mapleResp.GetIntermediateFilenames()) == 0 {
 		logutil.Logger.Debugf("no lines match the regex")
 	}
+	// juiceNum := len(mapleResp.GetIntermediateFilenames())
 	juiceResp, err := jobManager.SubmitJuiceJob(&idl.ExecuteJuiceJobRequest{
 		ExeName:               "demoJuice",
 		IntermediateFilenames: mapleResp.GetIntermediateFilenames(),
-		NumMaples:             4,
+		NumMaples:             3,
 		OutPutFilename:        "output.csv",
 		ExeArgs:               nil,
 	})
