@@ -168,6 +168,8 @@ func main() {
 	go func() {
 		for task := range taskQueue {
 			executeTask(sqlServer.jobManager, task)
+			// remove the task from the queue
+			<-taskQueue
 		}
 	}()
 
