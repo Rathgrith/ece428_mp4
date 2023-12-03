@@ -36,39 +36,39 @@ func main() {
 	// 	[]string{"test.csv"},
 
 	// )
-	// inputFilename := "test.csv"
-	// inputFilename2 := "Traffic_Signal_Intersections.csv"
-	// mapleExe := "joinMaple"
-	// juiceExe := "joinJuice"
-	// mapleExe1 := "demoMaple"
-	// juiceExe1 := "demoJuice"
+	inputFilename := "test.csv"
+	inputFilename2 := "Traffic_Signal_Intersections.csv"
+	mapleExe := "joinMaple"
+	juiceExe := "joinJuice"
+	mapleExe1 := "demoMaple"
+	juiceExe1 := "demoJuice"
 
-	// err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err := client.PutLocalFile(mapleExe, mapleExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
 
-	// err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err = client.PutLocalFile(juiceExe, juiceExe, "./", true)
+	if err != nil {
+		panic(err)
+	}
 
-	// err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = client.PutLocalFile(inputFilename2, inputFilename2, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = client.PutLocalFile(mapleExe1, mapleExe1, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = client.PutLocalFile(juiceExe1, juiceExe1, "./", true)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err = client.PutLocalFile(inputFilename, inputFilename, "./", true)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(inputFilename2, inputFilename2, "./", true)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(mapleExe1, mapleExe1, "./", true)
+	if err != nil {
+		panic(err)
+	}
+	err = client.PutLocalFile(juiceExe1, juiceExe1, "./", true)
+	if err != nil {
+		panic(err)
+	}
 
 	// client.GetFileToLocal("output.csv", "output.csv", "./")
 
