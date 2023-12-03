@@ -99,14 +99,12 @@ func executeTask(jobManager *job.Manager, task Task) {
 		intermediateFileNames := make([]string, 0)
 		strCol1 := strconv.Itoa(int(task.JoinColumn1))
 		strCol2 := strconv.Itoa(int(task.JoinColumn2))
-		col1 := fmt.Sprintf("-col %s", strCol1)
-		col2 := fmt.Sprintf("-col %s", strCol2)
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "filterMaple",
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir1},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{col1, "D1"},
+			ExeArgs:                    []string{strCol1, "D1"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
@@ -117,7 +115,7 @@ func executeTask(jobManager *job.Manager, task Task) {
 			IntermediateFilenamePrefix: task.Prefix,
 			InputFiles:                 []string{task.SrcDir2},
 			NumMaples:                  int32(task.NumTasks),
-			ExeArgs:                    []string{col2, "D2"},
+			ExeArgs:                    []string{strCol2, "D2"},
 		})
 		if err != nil || mapleResp.Code != idl.StatusCode_Success {
 			panic(err)
@@ -168,8 +166,6 @@ func main() {
 	go func() {
 		for task := range taskQueue {
 			executeTask(sqlServer.jobManager, task)
-			// remove the task from the queue
-			<-taskQueue
 		}
 	}()
 
