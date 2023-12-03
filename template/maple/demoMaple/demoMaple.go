@@ -39,11 +39,13 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 		interconneCol := columns[10]
 		detectionCol := columns[9]
 		if interconneCol == interconneType {
-			newKV := maple_juice.KV{
-				Key:   interconneCol,
-				Value: detectionCol,
+			if detectionCol != "" {
+				newKV := maple_juice.KV{
+					Key:   interconneCol,
+					Value: detectionCol,
+				}
+				return &newKV, nil
 			}
-			return &newKV, nil
 		}
 	}
 	return nil, nil
