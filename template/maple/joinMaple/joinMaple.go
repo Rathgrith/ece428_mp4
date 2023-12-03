@@ -48,7 +48,7 @@ func Maple(kv *maple_juice.KV) (*maple_juice.KV, error) {
 		return nil, fmt.Errorf("index out of range, idx:%d, len(vList):%d", idx, len(vList))
 	}
 	joinKey := vList[idx]
-	joinValue := dataset + "|" + kv.Value.(string)
+	joinValue := dataset + "|" + v
 	if joinKey == "" {
 		return nil, nil
 	}
