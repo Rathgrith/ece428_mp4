@@ -26,7 +26,7 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 	fmt.Printf("Task queue length: %d\n", len(s.taskQueue))
 	// Create a channel for task completion signal
 	completion := make(chan string, 1)
-	task := Task{
+	task := &Task{
 		Type:          req.TaskType,
 		Executable:    req.Exe,
 		NumTasks:      int(req.NumJobs),
@@ -40,7 +40,7 @@ func (s *server) EnqueueTask(ctx context.Context, req *idl.TaskRequest) (*idl.Ta
 		completionSig: completion,
 	}
 	fmt.Printf("Enqueuing task: %+v\n", task)
-	s.taskQueue <- &task
+	s.taskQueue <- task
 
 	// Wait for the task to complete or context to be done
 	select {
@@ -67,7 +67,7 @@ type Task struct {
 }
 
 // executeTask simulates task execution
-func executeTask(jobManager *job.Manager, task Task) {
+func executeTask(jobManager *job.Manager, task *Task) {
 	fmt.Printf("Executing task: %+v\n", task)
 	if task.Executable == "filterMaple" {
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
@@ -165,7 +165,7 @@ func main() {
 	// Start the scheduler in a separate goroutine
 	go func() {
 		for task := range taskQueue {
-			executeTask(sqlServer.jobManager, *task)
+			executeTask(sqlServer.jobManager, task)
 		}
 	}()
 
