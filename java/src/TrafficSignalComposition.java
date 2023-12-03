@@ -71,7 +71,8 @@ public class TrafficSignalComposition {
         job.setReducerClass(TrafficSignalReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-
+        job.setInputFormatClass(NLineInputFormat.class);
+        NLineInputFormat.setNumLinesPerSplit(job, 50);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
