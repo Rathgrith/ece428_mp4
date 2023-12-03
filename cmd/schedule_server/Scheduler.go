@@ -7,6 +7,7 @@ import (
 	"ece428_mp4/pkg/maple_juice/job"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"strconv"
 
@@ -69,6 +70,9 @@ type Task struct {
 // executeTask simulates task execution
 func executeTask(jobManager *job.Manager, task *Task) {
 	fmt.Printf("Executing task: %+v\n", task)
+	// generate a random nonce for intermediate file names
+	nonce := rand.Intn(1000000)
+	task.Prefix = fmt.Sprintf("%s%d", task.Prefix, nonce)
 	if task.Executable == "filterMaple" {
 		mapleResp, err := jobManager.SubmitMapleJob(&idl.ExecuteMapleJobRequest{
 			ExeName:                    "filterMaple",
