@@ -1,4 +1,4 @@
-# ECE428_MP3
+# ECE428_MP4
 
 ## Project Layout
 
